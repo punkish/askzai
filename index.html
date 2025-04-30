@@ -55,7 +55,44 @@
         <section id="how-this-works" class="hidden">
             <a class="backhome2" href="/index.html">←</a>
             <h2>How this works</h2>
-            <img src="img/zai.svg" alt="How this works" />
+            <pre>
+                ┌───────────┐                        
+                │what is the│                        
+  ┌────────────▶│meaning of │                        
+  │             │life?      │                        
+asks            └───────────┘                        
+  │                   │                              
+  │        ┌──────────┼─────────────────────────────┐
+  │        │          │          semantic cache     │
+  │        │    ┌─────▼─────┐                       │
+┌────┐     │yes │is the     │           ┌──────┐    │
+│user│◀─42─┼────│answer in  │──────────▶│cache │    │
+└────┘     │    │cache?     │           └───▲──┘    │
+           │    └───────────┘               │       │
+           │         no                     │       │
+           └──────────┼─────────────────────┼───────┘
+                      │               ┌─────┴────┐   
+             ┌────────▼───────┐       │          │   
+             │remove stopwords│       │ response │   
+             │"what", "is",   │       │          │   
+             │"the", and "of" │       └─────▲────┘   
+             └────────┬───────┘             │        
+                      │               ┌─────┴────┐   
+                      │               │          │   
+             ┌────────▼───────┐       │   LLM    │   
+             │full text search│       │          │   
+             │of "meaning" and│       └─────▲────┘   
+             │"life"          │             │        
+             └────────┬───────┘             │        
+                      │            ┌────────┴───────┐
+                      │            │question: "what │
+               ┌──────▼─────┐      │is the meaning  │
+               │papers      │      │of life?"       │
+               │ranked by   │─────▶│                │
+               │relevance   │      │context: top    │
+               └────────────┘      │ranked paper    │
+                                   └────────────────┘
+            </pre>
         </section>
     </main>
     <footer>
