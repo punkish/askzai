@@ -1,3 +1,5 @@
+import { $, $$ } from './utils.js';
+
 export class Router {
     
     constructor(routes) {
@@ -52,13 +54,13 @@ export class Router {
 }
 
 export function reroute(page) {
-    const sections = document.querySelectorAll('section');
+    const sections = $$('section');
 
     sections.forEach(section => {
         section.classList.add('hidden');
     });
 
-    const homeSection = document.querySelector(`section#${page}`);
+    const homeSection = $(`section#${page}`);
 
     if (homeSection) {
         homeSection.classList.remove('hidden');

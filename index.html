@@ -99,27 +99,28 @@ asks            └───────────┘
         <p>Published under the <a href="https://creativecommons.org/publicdomain/zero/1.0/legalcode">CC0 public domain dedication</a></p>
     </footer>
     <script type="module">
+        import { $, $$ } from './js/utils.js';
         import { Router, reroute } from './js/router.js';   
         import { onPageLoad, submitForm, go, reset } from './js/zaiweb.js';
 
         const routes = [
             {
-                link: document.querySelector('a.backhome1'),
+                link: $('a.backhome1'),
                 path: '/index.html',
                 component: () => reroute('index')
             },
             {
-                link: document.querySelector('a.backhome2'),
+                link: $('a.backhome2'),
                 path: '/index.html',
                 component: () => reroute('index')
             },
             {
-                link: document.querySelector('nav a[href="/about.html"]'),
+                link: $('nav a[href="/about.html"]'),
                 path: '/about.html',
                 component: () => reroute('about')
             },
             {
-                link: document.querySelector('nav a[href="/how-this-works.html"]'),
+                link: $('nav a[href="/how-this-works.html"]'),
                 path: '/how-this-works.html',
                 component: () => reroute('how-this-works')
             },
@@ -127,7 +128,10 @@ asks            └───────────┘
 
         const router = new Router(routes);
         document.addEventListener('DOMContentLoaded', (event) => onPageLoad(router));
-        document.querySelector('form').addEventListener('submit', submitForm);
+        $('form').addEventListener('submit', submitForm);
+        window.zenodeo = window.location.href.indexOf('zaiweb.net') > -1
+            ? 'https://test.zenodeo.org'
+            : 'http://localhost:3010';
     </script>
 </body>
 </html>

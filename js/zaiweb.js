@@ -1,3 +1,4 @@
+import { $, $$ } from './utils.js';
 import { stopWords } from "./stopwords.js";
 
 function literalList(arr) {
@@ -21,16 +22,16 @@ async function toJSON(body) {
     const chunks = [];
   
     async function read() {
-      const { done, value } = await reader.read();
-  
-      // all chunks have been read?
-      if (done) {
-        return JSON.parse(chunks.join(''));
-      }
-  
-      const chunk = decoder.decode(value, { stream: true });
-      chunks.push(chunk);
-      return read(); // read the next chunk
+        const { done, value } = await reader.read();
+    
+        // all chunks have been read?
+        if (done) {
+            return JSON.parse(chunks.join(''));
+        }
+    
+        const chunk = decoder.decode(value, { stream: true });
+        chunks.push(chunk);
+        return read(); // read the next chunk
     }
   
     return read();
@@ -55,18 +56,18 @@ function submitForm(event) {
 }
 
 async function go(query) {
-    const answerContainer = document.getElementById("answer");
-    const responseContainer = document.getElementById("response");
-    const goButton = document.getElementById("go");
-    const relatedImagesContainer = document.getElementById("relatedImages");
+    const answerContainer = $("#answer");
+    const responseContainer = $("#response");
+    const goButton = $("#go");
+    const relatedImagesContainer = $("#relatedImages");
 
     goButton.classList.add("button--loading");
     answerContainer.textContent = "";
     responseContainer.innerHTML = "";
     relatedImagesContainer.innerHTML = "";
     
-    const input = document.getElementById("q");
-    const output = document.getElementById("q_shadow");
+    const input = $("#q");
+    const output = $("#q_shadow");
     const words = query.split(/\s+/);
     const filteredWords = words
         .filter(word => word.length > 2)
@@ -77,7 +78,7 @@ async function go(query) {
         .map(w => {
             return uniqWords.includes(w) 
                 ? `<span class="hl">${w}</span>` 
-                : `<span aria-label="stop word removed from search" 
+                : `<span aria-label="stopword removed from search" 
                         data-pop="top" data-pop-no-shadow  
                         data-pop-arrow>${w}</span>`;
         })
@@ -85,7 +86,8 @@ async function go(query) {
     
     output.innerHTML = str;
     input.classList.add("obscure");
-    const response = await fetch(`https://test.zenodeo.org/v3/treatments?zai=${query}`);
+    
+    const response = await fetch(`${window.zenodeo}/v3/treatments?zai=${query}`);
     
     //const res = await toJSON(response.body);
 
@@ -130,7 +132,7 @@ function type(container, text, speed = 10, index = 0, relatedImages) {
             if (index === text.length - 1) {
                 
                 if (relatedImages) {
-                    const relatedImagesContainer = document.getElementById("relatedImages");
+                    const relatedImagesContainer = $("#relatedImages");
 
                     if (relatedImages.length === 1) {
                         relatedImagesContainer.classList.remove("columns-250");
@@ -161,8 +163,8 @@ function type(container, text, speed = 10, index = 0, relatedImages) {
 }
 
 function reset() {
-    const input = document.getElementById("q");
-    const output = document.getElementById("q_shadow");
+    const input = $("#q");
+    const output = $("#q_shadow");
     input.classList.remove("obscure");
     input.value = "";
     output.innerHTML = "";
@@ -170,14 +172,14 @@ function reset() {
 
 function onPageLoad(router) {
     router.listen();
-    document.querySelector('header img').addEventListener('click', () => {
-        document.querySelector('nav').classList.toggle('fade-in-normal');
+    $('header img').addEventListener('click', () => {
+        $('nav').classList.toggle('fade-in-normal');
         setTimeout(() => { 
-            document.querySelector('nav').classList.remove('fade-in-normal');
+            $('nav').classList.remove('fade-in-normal');
         }, 4000);
     });
-    document.querySelector('#q').focus();
-    document.querySelector('#reset').addEventListener('click', reset);
+    $('#q').focus();
+    $('#reset').addEventListener('click', reset);
 }
 
 export { onPageLoad, submitForm, go, reset }
