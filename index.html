@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zai</title>
+    <meta name="description" content="answering questions since before it was cool">
+    <head prefix="og: http://ogp.me/ns#">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Zai">
+    <link rel="stylesheet" href="css/uglyduck.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/pop-pop.min.css">
+</head>
+<body>
+    <header>
+        <!-- https://www.fontspace.com/category/lightning -->
+        <img id="home" src="img/zai.png" width="40" alt="Zai home">
+        <nav>
+            <ul>
+                <li><a href="/index.html">Zai</a></li>
+                <li><a href="/about.html">About</a></li>
+                <li><a href="/how-this-works.html">Info</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section id="index">
+            <form>
+                <div id="q_container">
+                    <div id="q_shadow"></div>
+                    <input type="search" id="q" name="q" placeholder="Ask me something!"> 
+                    <button id="reset" type="reset" aria-label="reset search" 
+                        data-pop="top" data-pop-no-shadow  
+                        data-pop-arrow>&#8855;</button>
+                    <button id="go" type="submit">Go</button> 
+                </div>
+            </form>
+            <!-- example queries              -->
+            <!-- ---------------------------- -->
+            <!-- 'What is Saigona baiseensis' -->
+            <!-- 'Describe Saigona sinicola'  -->
+            <div id="throbber" class="nothrob"></div>
+            <div id="response"></div>
+            <div id="answer"></div>
+            <div id="relatedImages" class="columns-250"></div>
+        </section>
+        
+        <section id="about" class="hidden">
+            <a class="backhome1" href="/index.html">←</a>
+            <h2>About</h2>
+            <p>This is a Plazi production.</p>
+        </section>
+
+        <section id="how-this-works" class="hidden">
+            <a class="backhome2" href="/index.html">←</a>
+            <h2>How this works</h2>
+            <img src="img/zai.svg" alt="How this works" />
+        </section>
+    </main>
+    <footer>
+        <p>Published under the <a href="https://creativecommons.org/publicdomain/zero/1.0/legalcode">CC0 public domain dedication</a></p>
+    </footer>
+    <script type="module">
+        import { Router, reroute } from './js/router.js';   
+        import { onPageLoad, submitForm, go, reset } from './js/zaiweb.js';
+
+        const routes = [
+            {
+                link: document.querySelector('a.backhome1'),
+                path: '/index.html',
+                component: () => reroute('index')
+            },
+            {
+                link: document.querySelector('a.backhome2'),
+                path: '/index.html',
+                component: () => reroute('index')
+            },
+            {
+                link: document.querySelector('nav a[href="/about.html"]'),
+                path: '/about.html',
+                component: () => reroute('about')
+            },
+            {
+                link: document.querySelector('nav a[href="/how-this-works.html"]'),
+                path: '/how-this-works.html',
+                component: () => reroute('how-this-works')
+            },
+        ];
+
+        const router = new Router(routes);
+        document.addEventListener('DOMContentLoaded', (event) => onPageLoad(router));
+        document.querySelector('form').addEventListener('submit', submitForm);
+    </script>
+</body>
+</html>
