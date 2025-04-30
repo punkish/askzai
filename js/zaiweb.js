@@ -85,7 +85,7 @@ async function go(query) {
     
     output.innerHTML = str;
     input.classList.add("obscure");
-    const response = await fetch(`http://test.zenodeo.org/v3/treatments?zai=${query}`);
+    const response = await fetch(`https://test.zenodeo.org/v3/treatments?zai=${query}`);
     
     //const res = await toJSON(response.body);
 
