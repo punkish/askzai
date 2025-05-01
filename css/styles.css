@@ -1,5 +1,9 @@
+/*-------------------------------*/
+/* start: document level styles  */
+/*-------------------------------*/
+
 /* 
- * the html and body settings are important to make the footer 
+ * The html and body settings are important to make the footer 
  * stick to the bottom when the body content is less than the 
  * viewport height. See 
  * https://developer.mozilla.org/en-US/docs/Web/CSS/Layout_cookbook/Sticky_footers
@@ -9,12 +13,12 @@ html {
 }
 body {
     min-height: 100vh;
-    padding: 0 !important;
     display: grid;
     grid-template-rows: auto 1fr auto;
 
     /* override uglyduck setting */
-    max-width: 960px;
+    --max-body-width: 960px;
+    max-width: var(--max-body-width)
 }
 a,
 a:visited{
@@ -37,10 +41,44 @@ a.backhome2:hover {
     background-color: grey;
     color: white;
 }
+pre {
+    font-size: 0.55rem;
+}
+@media (min-width: 550px) {
+    pre {
+        font-size: 8pt;
+    }
+}
+
+/* obscure hides the input element so #q_shadow stands out alone */
+.obscure {
+    /* opacity: 0; */
+    /* z-index: -1; */
+    display: none;
+}
+
+/* hidden hides the sections defined by the route */
+.hidden {
+    display: none;
+}
+
+.warning {
+    color: orange;
+}
+
+/*-------------------------------*/
+/* end: document level styles    */
+/*-------------------------------*/
+/* header styles                 */
+/*-------------------------------*/
 header {
     text-align: center;
-    height: 7rem;
-    padding-top: 2.5rem;
+}
+@media (min-width: 550px) {
+    header {
+        height: 7rem;
+        padding-top: 2.5rem;
+    }
 }
 header img {
     cursor: pointer;
@@ -61,123 +99,148 @@ header nav ul li {
     font-family: sans-serif;
     margin-right: 1rem;
 }
+
+/* 
+ * https://gradienty.codes/animations
+ * animation fade-in-normal
+ */
+ @keyframes fade-in-normal {0% { opacity: 0; } 100% { opacity: 1;} }
+
+ .fade-in-normal { 
+     visibility: visible;
+     animation: fade-in-normal 1s ease-in 0s 1 normal none; 
+ }
+
+/*-------------------------------*/
+/* end: header styles            */
+/*-------------------------------*/
+/* start: footer styles          */
+/*-------------------------------*/
 footer {
     text-align: center;
     font-family: sans-serif;
-    font-size: 80%;
+    font-size: .75rem;
 }
 
-/* obscure hides the input element so #q_shadow stands out alone */
-.obscure {
-    opacity: 0;
-    z-index: -1;
-}
-
-/* hidden hides the sections defined by the route */
-.hidden {
-    display: none;
-}
-
-.warning {
-    color: orange;
-}
+/*-------------------------------*/
+/* end: footer styles            */
+/*-------------------------------*/
+/* start: form styles            */
+/*-------------------------------*/
 form {
-    --form-width: 280px;
-    --button-width: 50px;
+
+    /* 
+     * forms don't have a default width or height, and 
+     * instead, they take the dimensions of their content.
+     * The var --form-width here is used to set the width 
+     * of the content input field and div.
+     */
+    --form-width: 100%;
+    --reset-button-width: 30px;
+    --go-button-width: 50px;
     --button-height: 36px;
-    --input-width: calc( var(--form-width) - var(--button-width));
+    --border-radius: 5px;
 }
-@media (min-width: 550px) {
-    form {
-        --form-width: 100%;
-    }
+#form-wrapper {
+    border: none;
 }
 #q_container {
-    width: var(--input-width);
+    width: var(--form-width);
     position: relative;
-    border: 1px solid lightgrey;
-    height: var(--button-height);
-    padding: 2px;
-    border-radius: 20px 0 0 20px;
+/*     border: 1px solid lightgrey; */
+    border-bottom: 1px dotted black;
+    min-height: var(--button-height);
+    padding: 2px 10px;
+    border-radius: var(--border-radius);
 }
 #q_shadow {
     color: lightgrey;
-    width: var(--input-width);
     min-height: var(--button-height);
-    height: 30px;
     line-height: 2.1rem;
 }
 #q {
-    width: var(--input-width);
     border: none;
-    height: 32px;
+    min-height: 32px;
     padding: 0;
 }
 #q_shadow,
 #q {
-    position: absolute;
-    top: 1px;
-    left: 15px;
     font-family: sans-serif;
     font-size: 1rem;
+    width: var(--form-width);
+    padding: 0 10px;
+
 }
 #q:focus {
     outline: none;
 }
+#buttons {
+    border: 1px solid lightgrey;
+    border-radius: var(--border-radius);
+    display: inline-block;
+    padding: 1px;
+    margin-top: 0.25rem;
+    position: relative;
+}
+#reset,
+#go {
+    border: 1px solid lightslategrey;
+    cursor: pointer;
+}
 #reset {
-    position: absolute;
-    width: 30px;
-    height: 30px;
-    left: calc(var(--input-width) + 15px);
-    border: 3px double lightgrey;
-    border-radius: 50%;
+    width: var(--reset-button-width);
+    height: var(--button-height);
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
 }
 #reset:hover {
     background-color: red;
     color: white;
-    cursor: pointer;
 }
-
+#go {
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
+    width: var(--go-button-width);
+    height: var(--button-height);
+}
+#go:hover {
+    background-color: lightgreen;
+}
 /* https://dev.to/dcodeyt/create-a-button-with-a-loading-spinner-in-html-css-1c0h */
+@keyframes button-loading-spinner {
+    from { transform: rotate(0turn); }
+    to { transform: rotate(1turn); }
+}
 .button--loading::after {
     content: "";
     position: absolute;
     width: 20px;
     height: 20px;
     top: 0;
-    left: 0;
+    left: 33px;
     right: 0;
     bottom: 0;
     margin: auto;
     background-color: lightgreen;
     border: 4px solid transparent;
-    border-top-color: #ffffff;
+    border-top-color: darkgreen;
     border-radius: 50%;
     animation: button-loading-spinner 1s ease infinite;
-}
-@keyframes button-loading-spinner {
-    from {
-        transform: rotate(0turn);
-    }
+    opacity: 0.75;
 
-    to {
-        transform: rotate(1turn);
-    }
 }
 
-#go {
-    position: absolute;
-    top: -1px;
-    border: 1px solid lightgrey;
-    border-radius: 0 20px 20px 0;
-    width: var(--button-width);
-    height: var(--button-height);
-    left: calc(var(--input-width) + var(--button-width));
-    cursor: pointer;
+@media (min-width: 550px) {
+    #q_container,
+    #buttons {
+        display: inline-block;
+    }
+    #q_container {
+        width: calc(var(--form-width) - var(--reset-button-width) - var(--go-button-width) - 12px);
+    }
 }
-#go:hover {
-    background-color: lightgreen;
-}
+/*-------------------------------*/
+/* end: form styles              */
+/*-------------------------------*/
+
 .hl {
     color: green;
 }
@@ -191,6 +254,13 @@ form {
     margin: 2rem 0;
 }
 
+@keyframes typing {
+    from { width: 0; }
+    to { width: 8ch; }
+}
+@keyframes blink {
+    50% { opacity: 0; }
+}
 .typewriter {
     overflow: hidden;
     white-space: nowrap;
@@ -202,40 +272,14 @@ form {
       animation: blink 1s step-end infinite;
     }
 }
-@keyframes typing {
-    from { width: 0; }
-    to { width: 8ch; }
-}
-@keyframes blink {
-    50% { opacity: 0; }
-}
 
-/* ----------------------------------------
- * https://gradienty.codes/animations
- * animation fade-in-normal
- * ----------------------------------------
- */
-@keyframes fade-in-normal {0% { opacity: 0; } 100% { opacity: 1;} }
-
-.fade-in-normal { 
-    visibility: visible;
-    animation: fade-in-normal 1s ease-in 0s 1 normal none; 
-}
-
-.column {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    margin: 0 auto;
-}
 /* grid for figures */
-.columns-250 {
+.columns {
     --column-count: 1;
     --column-gap: 30px;
-    --image-size: 300px;
+    --image-size: 288px;
     --columns-width: calc( var(--image-size) * var(--column-count) );
-    --gaps-width: calc( (var(--column-count) - 1) * var(--column-gap) );
+    --gaps-width: calc( var(--column-gap) * (var(--column-count) - 1)  );
     --grid-width: calc( var(--columns-width) + var(--gaps-width) );
 
     width: var(--grid-width);
@@ -256,15 +300,14 @@ form {
 }
 /* Larger than phablet */
 @media (min-width: 550px) {
-    .columns-250 {
-        --image-size: 300px;
+    .columns {
         --column-count: 2 !important;
     }
 }
 
 /* Larger than tablet */
 @media (min-width: 768px) {
-    .columns-250 {
+    .columns {
         --column-count: 3 !important;
     }
 }

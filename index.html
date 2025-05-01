@@ -27,23 +27,27 @@
     <main>
         <section id="index">
             <form>
-                <div id="q_container">
-                    <div id="q_shadow"></div>
-                    <input type="search" id="q" name="q" placeholder="Ask me something!"> 
-                    <button id="reset" type="reset" aria-label="reset search" 
-                        data-pop="top" data-pop-no-shadow  
-                        data-pop-arrow>&#8855;</button>
-                    <button id="go" type="submit">Go</button> 
+                <div id="form-wrapper">
+                    <div id="q_container">
+                        <div id="q_shadow" class="obscure"></div>
+                        <input type="text" id="q" name="q" placeholder="Ask me something!"> 
+                    </div>
+                    <div id="buttons">
+                        <button id="reset" type="reset" aria-label="reset search" 
+                            data-pop="top" data-pop-no-shadow  
+                            data-pop-arrow>&#8855;</button>
+                            <button id="go" type="submit">→</button> 
+                    </div>
                 </div>
             </form>
             <!-- example queries              -->
             <!-- ---------------------------- -->
             <!-- 'What is Saigona baiseensis' -->
             <!-- 'Describe Saigona sinicola'  -->
-            <div id="throbber" class="nothrob"></div>
+
             <div id="response"></div>
             <div id="answer"></div>
-            <div id="relatedImages" class="columns-250"></div>
+            <div id="relatedImages" class="columns"></div>
         </section>
         
         <section id="about" class="hidden">
@@ -56,12 +60,12 @@
             <a class="backhome2" href="/index.html">←</a>
             <h2>How this works</h2>
             <pre>
-                ┌───────────┐                        
-                │what is the│                        
-  ┌────────────▶│meaning of │                        
-  │             │life?      │                        
-asks            └───────────┘                        
-  │                   │                              
+                ┌───────────┐
+                │what is the│
+  ┌────────────▶│meaning of │
+  │             │life?      │
+asks            └───────────┘
+  │                   │      
   │        ┌──────────┼─────────────────────────────┐
   │        │          │          semantic cache     │
   │        │    ┌─────▼─────┐                       │
@@ -71,19 +75,19 @@ asks            └───────────┘
            │    └───────────┘               │       │
            │         no                     │       │
            └──────────┼─────────────────────┼───────┘
-                      │               ┌─────┴────┐   
-             ┌────────▼───────┐       │          │   
-             │remove stopwords│       │ response │   
-             │"what", "is",   │       │          │   
-             │"the", and "of" │       └─────▲────┘   
-             └────────┬───────┘             │        
-                      │               ┌─────┴────┐   
-                      │               │          │   
-             ┌────────▼───────┐       │   LLM    │   
-             │full text search│       │          │   
-             │of "meaning" and│       └─────▲────┘   
-             │"life"          │             │        
-             └────────┬───────┘             │        
+                      │               ┌─────┴────┐
+             ┌────────▼───────┐       │          │
+             │remove stopwords│       │ response │
+             │"what", "is",   │       │          │
+             │"the", and "of" │       └─────▲────┘
+             └────────┬───────┘             │     
+                      │               ┌─────┴────┐
+                      │               │          │
+             ┌────────▼───────┐       │   LLM    │
+             │full text search│       │          │
+             │of "meaning" and│       └─────▲────┘
+             │"life"          │             │     
+             └────────┬───────┘             │     
                       │            ┌────────┴───────┐
                       │            │question: "what │
                ┌──────▼─────┐      │is the meaning  │
@@ -129,9 +133,15 @@ asks            └───────────┘
         const router = new Router(routes);
         document.addEventListener('DOMContentLoaded', (event) => onPageLoad(router));
         $('form').addEventListener('submit', submitForm);
-        window.zenodeo = window.location.href.indexOf('zaiweb.net') > -1
-            ? 'https://test.zenodeo.org'
-            : 'http://localhost:3010';
+        const loc = window.location.href;
+        window.zenodeo = 'http://localhost:3010';
+
+        if (loc.indexOf('zaiweb.net') > -1) {
+            window.zenodeo = 'https://test.zenodeo.org';
+        }
+        else if (loc.indexOf('lucknow.local') > -1) {
+            window.zenodeo = 'http://lucknow.local:3010';
+        }
     </script>
 </body>
 </html>

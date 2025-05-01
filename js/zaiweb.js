@@ -85,6 +85,7 @@ async function go(query) {
         .join(" ");
     
     output.innerHTML = str;
+    output.classList.remove("obscure");
     input.classList.add("obscure");
     
     const response = await fetch(`${window.zenodeo}/v3/treatments?zai=${query}`);
@@ -134,10 +135,9 @@ function type(container, text, speed = 10, index = 0, relatedImages) {
                 if (relatedImages) {
                     const relatedImagesContainer = $("#relatedImages");
 
-                    if (relatedImages.length === 1) {
-                        relatedImagesContainer.classList.remove("columns-250");
-                        relatedImagesContainer.classList.add("column");
-                    }
+                    // if (relatedImages.length === 1) {
+                    //     relatedImagesContainer.classList.remove("columns");
+                    // }
 
                     relatedImages.forEach((image, index) => {
                         const fig = document.createElement("figure");
