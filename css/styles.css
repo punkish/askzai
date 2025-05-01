@@ -203,6 +203,7 @@ form {
 #go:hover {
     background-color: lightgreen;
 }
+
 /* https://dev.to/dcodeyt/create-a-button-with-a-loading-spinner-in-html-css-1c0h */
 @keyframes button-loading-spinner {
     from { transform: rotate(0turn); }
@@ -239,6 +240,37 @@ form {
 /*-------------------------------*/
 /* end: form styles              */
 /*-------------------------------*/
+/* start: examples styles        */
+/*-------------------------------*/
+#example-queries {
+    font-family: sans-serif;
+    font-size: 10pt;
+    cursor: pointer;
+    width: 210px;
+    padding: 0 1rem;
+}
+#example-queries h4 {
+    margin: 0;
+    font-weight: 400;
+    color: grey;
+}
+#dropdown {
+    padding: 0;
+}
+#dropdown li {
+    padding: 2px;
+    margin: 0;
+    cursor: pointer;
+    list-style: none;
+    transition: opacity 0.5s ease-in-out 0.1s;
+}
+#dropdown li {
+    border-bottom: 1px dotted black;
+}
+#dropdown li:hover {
+    color: blue;
+    text-decoration: underline;
+}
 
 .hl {
     color: green;
@@ -253,13 +285,8 @@ form {
     margin: 2rem 0;
 }
 
-@keyframes typing {
-    from { width: 0; }
-    to { width: 8ch; }
-}
-@keyframes blink {
-    50% { opacity: 0; }
-}
+@keyframes typing { from { width: 0; } to { width: 8ch; } }
+@keyframes blink { 50% { opacity: 0; } }
 .typewriter {
     overflow: hidden;
     white-space: nowrap;
@@ -429,38 +456,4 @@ figcaption details[open] summary {
     margin-bottom: 0.5em;
     overflow: unset;
     white-space: unset;
-}
-
-#example-queries {
-    font-family: sans-serif;
-    font-size: 10pt;
-    cursor: pointer;
-    width: 210px;
-/*     background-color: #f5f5f5;
-    border: 1px solid lightslategray; */
-    padding: 0 1rem;
-}
-#example-queries h4 {
-    margin: 0;
-    font-weight: 400;
-    color: grey;
-}
-#dropdown {
-    padding: 0;
-}
-#dropdown li {
-    padding: 2px;
-    margin: 0;
-    /* font-family: sans-serif;
-    font-size: 10pt; */
-    cursor: pointer;
-    list-style: none;
-    transition: opacity 0.5s ease-in-out 0.1s;
-}
-#dropdown li {
-    border-bottom: 1px dotted black;
-}
-#dropdown li:hover {
-    color: blue;
-    text-decoration: underline;
 }
