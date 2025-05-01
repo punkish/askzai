@@ -139,6 +139,10 @@ function type(container, text, speed = 10, index = 0, relatedImages) {
                         relatedImagesContainer.classList.remove("columns");
                         relatedImagesContainer.classList.add("column");
                     }
+                    else {
+                        relatedImagesContainer.classList.remove("column");
+                        relatedImagesContainer.classList.add("columns");
+                    }
 
                     relatedImages.forEach((image, index) => {
                         const fig = document.createElement("figure");
@@ -169,6 +173,7 @@ function reset() {
     input.classList.remove("obscure");
     input.value = "";
     output.innerHTML = "";
+    output.classList.add("obscure");
 }
 
 function onPageLoad(router) {
