@@ -19,8 +19,8 @@
         <nav>
             <ul>
                 <li><a href="/index.html">Zai</a></li>
-                <li><a href="/about.html">About</a></li>
-                <li><a href="/how-this-works.html">Info</a></li>
+                <li><a href="/about.html" class="route">About</a></li>
+                <li><a href="/how-this-works.html" class="route">Info</a></li>
             </ul>
         </nav>
     </header>
@@ -39,11 +39,24 @@
                             <button id="go" type="submit">→</button> 
                     </div>
                 </div>
+                <div id="example-queries">
+                    <h4>example queries</h4>
+                    <div class="hidden">
+                        <p>Keep the queries short. Here are a few to get started:</p>
+                        <ul id="dropdown">
+                            <li>What is Saigona baiseensis</li>
+                            <li>Describe Saigona sinicola</li>
+                            <li>Describe Carvalhoma malcolmae</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
             </form>
-            <!-- example queries              -->
-            <!-- ---------------------------- -->
-            <!-- 'What is Saigona baiseensis' -->
-            <!-- 'Describe Saigona sinicola'  -->
+            <!-- example queries                 -->
+            <!-- ------------------------------- -->
+            <!-- 'What is Saigona baiseensis'    -->
+            <!-- 'Describe Saigona sinicola'     -->
+            <!-- 'Describe Carvalhoma malcolmae' -->
 
             <div id="response"></div>
             <div id="answer"></div>
@@ -51,43 +64,42 @@
         </section>
         
         <section id="about" class="hidden">
-            <a class="backhome1" href="/index.html">←</a>
+            <a class="route backhome" href="/index.html">←</a>
             <h2>About</h2>
             <p>This is a Plazi production.</p>
         </section>
 
         <section id="how-this-works" class="hidden">
-            <a class="backhome2" href="/index.html">←</a>
+            <a class="route backhome" href="/index.html">←</a>
             <h2>How this works</h2>
             <pre>
-                ┌───────────┐
-                │what is the│
-  ┌────────────▶│meaning of │
-  │             │life?      │
-asks            └───────────┘
-  │                   │      
-  │        ┌──────────┼─────────────────────────────┐
-  │        │          │          semantic cache     │
-  │        │    ┌─────▼─────┐                       │
-┌────┐     │yes │is the     │           ┌──────┐    │
-│user│◀─42─┼────│answer in  │──────────▶│cache │    │
-└────┘     │    │cache?     │           └───▲──┘    │
-           │    └───────────┘               │       │
-           │         no                     │       │
-           └──────────┼─────────────────────┼───────┘
-                      │               ┌─────┴────┐
-             ┌────────▼───────┐       │          │
-             │remove stopwords│       │ response │
-             │"what", "is",   │       │          │
-             │"the", and "of" │       └─────▲────┘
-             └────────┬───────┘             │     
-                      │               ┌─────┴────┐
-                      │               │          │
-             ┌────────▼───────┐       │   LLM    │
-             │full text search│       │          │
-             │of "meaning" and│       └─────▲────┘
-             │"life"          │             │     
-             └────────┬───────┘             │     
+                ┌───────────┐                        
+                │what is the│                        
+  ┌────────────▶│meaning of │                        
+  │             │life?      │                        
+asks            └───────────┘                        
+  │                   │                              
+  │        ┌ ─ ─ ─ ─ ─│─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ 
+  │                   │          semantic cache^    │
+  │        │    ┌─────▼─────┐                        
+┌────┐       yes│is the     │           ┌──────┐    │
+│user│◀─42─┼────│answer in  │──────────▶│cache │     
+└────┘          │cache?     │           └───▲──┘    │
+           │    └───────────┘               │        
+                     no                     │       │
+           └ ─ ─ ─ ─ ─│─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─│─ ─ ─ ─ 
+                      │                     │        
+             ┌────────▼───────┐             │        
+             │remove stopwords│       ┌─────┴────┐   
+             │"what", "is",   │       │ response │   
+             │"the", and "of" │       └─────▲────┘   
+             └────────┬───────┘             │        
+                      │                     │        
+             ┌────────▼───────┐       ┌─────┴────┐   
+             │full text search│       │   LLM    │   
+             │of "meaning" and│       └─────▲────┘   
+             │"life"          │             │        
+             └────────┬───────┘             │        
                       │            ┌────────┴───────┐
                       │            │question: "what │
                ┌──────▼─────┐      │is the meaning  │
@@ -97,6 +109,9 @@ asks            └───────────┘
                └────────────┘      │ranked paper    │
                                    └────────────────┘
             </pre>
+            <p>We use Meta's opensource <b>Llama 3.2:latest</b> to generate answers to questions based on the context provided. The context is chosen from the full text search result of the relevant tokens in your query ranked by their relevance (BM25 score).</p>
+
+            <p>^ Semantic cache is not yet implemented</p>
         </section>
     </main>
     <footer>
@@ -105,43 +120,43 @@ asks            └───────────┘
     <script type="module">
         import { $, $$ } from './js/utils.js';
         import { Router, reroute } from './js/router.js';   
-        import { onPageLoad, submitForm, go, reset } from './js/zaiweb.js';
+        import { onPageLoad, submitForm, go, reset, tweakUrl } from './js/zaiweb.js';
 
-        const routes = [
-            {
-                link: $('a.backhome1'),
-                path: '/index.html',
-                component: () => reroute('index')
-            },
-            {
-                link: $('a.backhome2'),
-                path: '/index.html',
-                component: () => reroute('index')
-            },
-            {
-                link: $('nav a[href="/about.html"]'),
-                path: '/about.html',
-                component: () => reroute('about')
-            },
-            {
-                link: $('nav a[href="/how-this-works.html"]'),
-                path: '/how-this-works.html',
-                component: () => reroute('how-this-works')
-            },
-        ];
+        const routes = Array.from($$('.route')).map(link => { 
+            return {
+                link, 
+                path: link.getAttribute('href'),
+                component: () => reroute(
+                    link.getAttribute('href')
+                        .replace('/', '')
+                        .replace('.html', '')
+                )
+            }
+        });
 
         const router = new Router(routes);
         document.addEventListener('DOMContentLoaded', (event) => onPageLoad(router));
         $('form').addEventListener('submit', submitForm);
-        const loc = window.location.href;
-        window.zenodeo = 'http://localhost:3010';
+        tweakUrl(window.location.href);
 
-        if (loc.indexOf('zaiweb.net') > -1) {
-            window.zenodeo = 'https://test.zenodeo.org';
+        function revealExamples() {
+            $('#example-queries div').classList.toggle('hidden');
         }
-        else if (loc.indexOf('lucknow.local') > -1) {
-            window.zenodeo = 'http://lucknow.local:3010';
-        }
+
+        $('#example-queries h4').addEventListener('click', (e) => {
+            e.preventDefault();
+            revealExamples();
+        });
+
+        $$('#dropdown li').forEach((item) => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const input = $('#q');
+                input.value = e.target.innerText;
+                revealExamples();
+                go(input.value);
+            });
+        });
     </script>
 </body>
 </html>

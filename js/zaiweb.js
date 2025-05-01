@@ -182,4 +182,15 @@ function onPageLoad(router) {
     $('#reset').addEventListener('click', reset);
 }
 
-export { onPageLoad, submitForm, go, reset }
+function tweakUrl(loc) {
+    window.zenodeo = 'http://localhost:3010';
+
+    if (loc.indexOf('zaiweb.net') > -1) {
+        window.zenodeo = 'https://test.zenodeo.org';
+    }
+    else if (loc.indexOf('lucknow.local') > -1) {
+        window.zenodeo = 'http://lucknow.local:3010';
+    }
+}
+
+export { onPageLoad, submitForm, go, reset, tweakUrl }
