@@ -135,9 +135,10 @@ function type(container, text, speed = 10, index = 0, relatedImages) {
                 if (relatedImages) {
                     const relatedImagesContainer = $("#relatedImages");
 
-                    // if (relatedImages.length === 1) {
-                    //     relatedImagesContainer.classList.remove("columns");
-                    // }
+                    if (relatedImages.length === 1) {
+                        relatedImagesContainer.classList.remove("columns");
+                        relatedImagesContainer.classList.add("column");
+                    }
 
                     relatedImages.forEach((image, index) => {
                         const fig = document.createElement("figure");
