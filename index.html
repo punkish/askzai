@@ -43,24 +43,23 @@
                             <button id="go" type="submit">→</button> 
                     </div>
                 </div>
-                <div id="example-queries">
-                    <h4>example queries</h4>
-                    <div class="hidden">
-                        <p>Keep the queries short. Here are a few to get started:</p>
+                <details id="example-queries">
+                    <summary>
+                        example queries
+                    </summary>
+                    <div>
+                        <p>Keep the queries short, three to five words long. Focus on a single task and a single species, and include the name of the species in the query. These tricks allow a more focused context to be presented to the LLM. Here are a few examples to get you started:</p>
                         <ul id="dropdown">
-                            <li>What is Saigona baiseensis</li>
+                            <li>What is Saigona baiseensis?</li>
                             <li>Describe Saigona sinicola</li>
                             <li>Describe Carvalhoma malcolmae</li>
+                            <li>Does Rhinolophus sinicus live in caves?</li>
+                            <li>Where does Laephotis botswanae roost?</li>
                         </ul>
                     </div>
-                </div>
+                </details>
             </div>
             </form>
-            <!-- example queries                 -->
-            <!-- ------------------------------- -->
-            <!-- 'What is Saigona baiseensis'    -->
-            <!-- 'Describe Saigona sinicola'     -->
-            <!-- 'Describe Carvalhoma malcolmae' -->
 
             <div id="response"></div>
             <div id="answer"></div>
@@ -145,21 +144,22 @@ asks            └───────────┘
         $('form').addEventListener('submit', submitForm);
         tweakUrl(window.location.href);
 
-        function revealExamples() {
-            $('#example-queries div').classList.toggle('hidden');
-        }
+        // function revealExamples() {
+        //     $('#example-queries div').classList.toggle('hidden');
+        // }
 
-        $('#example-queries h4').addEventListener('click', (e) => {
-            e.preventDefault();
-            revealExamples();
-        });
+        // $('#example-queries h4').addEventListener('click', (e) => {
+        //     e.preventDefault();
+        //     revealExamples();
+        // });
 
         $$('#dropdown li').forEach((item) => {
             item.addEventListener('click', (e) => {
                 e.preventDefault();
                 const input = $('#q');
                 input.value = e.target.innerText;
-                revealExamples();
+                document.querySelector('#example-queries').open = false;
+                // revealExamples();
                 go(input.value);
             });
         });

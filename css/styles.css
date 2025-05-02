@@ -8,7 +8,7 @@
  * viewport height. See 
  * https://developer.mozilla.org/en-US/docs/Web/CSS/Layout_cookbook/Sticky_footers
  */
-html {
+ html {
     height: 100%;
 }
 body {
@@ -35,8 +35,7 @@ a.backhome {
     color: black;
     font-weight: 800;
 }
-a.backhome1:hover
-a.backhome2:hover {
+a.backhome:hover {
     background-color: grey;
     color: white;
 }
@@ -85,7 +84,7 @@ header img {
 header nav {
     text-align: center;
     visibility: hidden;
-    margin-top: -20px;
+    margin-top: -1.25rem;
 }
 header nav ul {
 
@@ -119,6 +118,7 @@ footer {
     text-align: center;
     font-family: sans-serif;
     font-size: .75rem;
+    margin-bottom: -1rem;
 }
 
 /*-------------------------------*/
@@ -146,20 +146,18 @@ form {
 #q_container {
     width: var(--form-width);
     position: relative;
-/*     border: 1px solid lightgrey; */
     border-bottom: 1px dotted black;
     min-height: var(--button-height);
     padding: 2px 10px;
-    /* border-radius: var(--border-radius); */
 }
 #q_shadow {
     color: lightgrey;
     min-height: var(--button-height);
-    line-height: 2.1rem;
+/*     line-height: 2.1rem; */
 }
 #q {
     border: none;
-    min-height: 32px;
+    min-height: 2rem;
     padding: 0;
 }
 #q_shadow,
@@ -167,7 +165,7 @@ form {
     font-family: sans-serif;
     font-size: 1rem;
     width: var(--form-width);
-    padding: 0 10px;
+    padding: 0px;
 
 }
 #q:focus {
@@ -185,6 +183,7 @@ form {
 #go {
     border: 1px solid lightslategrey;
     cursor: pointer;
+    background-color: lightgrey;
 }
 #reset {
     width: var(--reset-button-width);
@@ -245,14 +244,19 @@ form {
 #example-queries {
     font-family: sans-serif;
     font-size: 10pt;
-    cursor: pointer;
-    width: 210px;
-    padding: 0 1rem;
+    width: 288px;
+    /*! padding: 0 1rem; */
 }
-#example-queries h4 {
-    margin: 0;
-    font-weight: 400;
-    color: grey;
+#example-queries summary {
+    cursor: pointer;
+}
+details[open] summary ~ * {
+    animation: sweep 1s ease-in-out;
+}
+  
+@keyframes sweep {
+    0%    {opacity: 0; margin-top: -10px}
+    100%  {opacity: 1; margin-top: 0px}
 }
 #dropdown {
     padding: 0;
@@ -272,6 +276,9 @@ form {
     text-decoration: underline;
 }
 
+#response ol {
+    padding-left: 1rem;
+}
 .hl {
     color: green;
 }
@@ -342,6 +349,7 @@ form {
 @media (min-width: 768px) {
     .columns {
         --column-count: 3 !important;
+        --image-size: 238px;
     }
 }
 

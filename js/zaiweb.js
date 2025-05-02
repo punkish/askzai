@@ -124,6 +124,7 @@ async function go(query) {
     output.innerHTML = str;
     output.classList.remove("obscure");
     input.classList.add("obscure");
+    return;
     
     const response = await fetch(`${window.uris.zenodeo}/v3/treatments?zai=${query}`);
     
