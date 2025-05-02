@@ -163,50 +163,52 @@ async function go(query) {
 
 function type(container, text, speed = 10, index = 0, relatedImages, source) {
 
-    if (index < text.length) {
+    function drawImage(relatedImages, source) {
+        if (relatedImages) {
+            const relatedImagesContainer = $("#relatedImages");
+
+            if (relatedImages.length === 1) {
+                relatedImagesContainer.classList.remove("columns");
+                relatedImagesContainer.classList.add("column");
+            }
+            else {
+                relatedImagesContainer.classList.remove("column");
+                relatedImagesContainer.classList.add("columns");
+            }
+
+            relatedImages.forEach((image, index) => {
+                const fig = document.createElement("figure");
+                fig.classList.add(`treatment-image-${index}`);
+                const img = document.createElement("img");
+
+                const uris = imageUrl(image.httpUri);
+                img.src = "img/bug.gif";
+                img.dataset.src = uris.src250;
+                img.width = 255;
+                img.alt = "Treatment Image";
+                img.classList.add("lazyload");
+                fig.appendChild(img);
+                const figcaption = document.createElement("figcaption");
+                figcaption.textContent = image.captionText;
+                fig.appendChild(figcaption);
+                relatedImagesContainer.appendChild(fig);
+            });
+        }
+
+        const sourceContainer = $("#source");
+        sourceContainer.innerHTML = source;
+    }
+
+    if (index < (text.length)) {
         container.textContent += text.charAt(index);
         index++;
         setTimeout(() => {
             type(container, text, speed, index, relatedImages, source);
-
-            if (index === text.length - 1) {
-                
-                if (relatedImages) {
-                    const relatedImagesContainer = $("#relatedImages");
-
-                    if (relatedImages.length === 1) {
-                        relatedImagesContainer.classList.remove("columns");
-                        relatedImagesContainer.classList.add("column");
-                    }
-                    else {
-                        relatedImagesContainer.classList.remove("column");
-                        relatedImagesContainer.classList.add("columns");
-                    }
-
-                    relatedImages.forEach((image, index) => {
-                        const fig = document.createElement("figure");
-                        fig.classList.add("treatment-image");
-                        fig.classList.add("treatment-image-" + index);
-                        const img = document.createElement("img");
-
-                        const uris = imageUrl(image.httpUri);
-                        img.src = uris.src250;
-                        img.alt = "Treatment Image";
-                        img.classList.add("treatment-image");
-                        fig.appendChild(img);
-                        const figcaption = document.createElement("figcaption");
-                        figcaption.textContent = image.captionText;
-                        fig.appendChild(figcaption);
-                        relatedImagesContainer.appendChild(fig);
-                    });
-                }
-
-                const sourceContainer = $("#source");
-                sourceContainer.innerHTML = source;
-
-            }
-
         }, speed);
+
+        if (index === (text.length - 1)) {
+            drawImage(relatedImages, source);
+        }
     }
 
 }

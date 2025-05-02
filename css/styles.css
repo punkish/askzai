@@ -150,7 +150,7 @@ form {
     border-bottom: 1px dotted black;
     min-height: var(--button-height);
     padding: 2px 10px;
-    border-radius: var(--border-radius);
+    /* border-radius: var(--border-radius); */
 }
 #q_shadow {
     color: lightgrey;
