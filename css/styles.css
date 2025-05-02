@@ -457,3 +457,8 @@ figcaption details[open] summary {
     overflow: unset;
     white-space: unset;
 }
+
+#source {
+    padding: 1rem;
+    font-size: 0.8rem;
+}

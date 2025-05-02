@@ -55,6 +55,43 @@ function submitForm(event) {
     }
 }
 
+function imageUrl(httpUri) {
+    const uris = {};
+
+    // Most figures are on Zenodo, so adjust their url 
+    // accordingly
+    const id = httpUri.split('/')[4];
+
+    // if the figure is on zenodo, show their thumbnails unless 
+    // it is an svg, in which case, apologize with "no preview"
+    if (httpUri.indexOf('zenodo') > -1) {
+        if (httpUri.indexOf('.svg') > -1) {
+            uris.src250 = '/img/kein-preview.png';
+            uris.src1200 = '/img/kein-preview.png';
+        }
+        else {
+
+            // record.uri = `${globals.zenodoUri}/${id}/thumb${figureSize}`;
+            // https://zenodo.org/api/iiif/record:6758444:figure.png/full/250,/0/default.png
+            uris.src250 = `${window.uris.zenodo}/api/iiif/record:${id}:figure.png/full/250,/0/default.jpg`;
+            //uris.src250 = `${window.uris.zenodo}/${id}/thumb${250}`;
+
+            // record.fullImage = `${globals.zenodoUri}/${id}/thumb1200`;
+            // https://zenodo.org/api/iiif/record:6758444:figure.png/full/1200,/0/default.png
+            uris.src1200 = `${window.uris.zenodo}/api/iiif/record:${id}:figure.png/full/^1200,/0/default.jpg`;
+            //uris.src1200 = `${window.uris.zenodo}/${id}/thumb1200`;
+        }
+    }
+
+    // but some are on Pensoft, so use the uri directly
+    else {
+        uris.src250 = uris.src1200 = `${httpUri}/singlefigAOF/`;
+        //uris.orig250 = uris.orig1200 = httpUri;
+    }
+
+    return uris;
+}
+
 async function go(query) {
     const answerContainer = $("#answer");
     const responseContainer = $("#response");
@@ -88,7 +125,7 @@ async function go(query) {
     output.classList.remove("obscure");
     input.classList.add("obscure");
     
-    const response = await fetch(`${window.zenodeo}/v3/treatments?zai=${query}`);
+    const response = await fetch(`${window.uris.zenodeo}/v3/treatments?zai=${query}`);
     
     //const res = await toJSON(response.body);
 
@@ -106,6 +143,7 @@ async function go(query) {
             .join("");
 
         responseContainer.innerHTML = `<ol>${str}</ol>`;
+        const source = `<div id="citation">Answer generated based on the treatment: <a href="${window.uris.tb}/${res.response.treatmentId}" target="_blank">${res.response.treatmentTitle}</a> from <cite>${res.response.articleAuthor}. ${res.response.publicationDate}. ${res.response.articleTitle}, DOI: <a href="https://doi.org/${res.response.articleDOI}">${res.response.articleDOI}</a></cite></div>`;
 
         const speed = 5;
         const index = 0;
@@ -113,22 +151,23 @@ async function go(query) {
         const s = relatedImages.length > 1
             ? ` Here are a few related images`
             : ` Here is a related image`;
+        
         const answer = relatedImages
             ? res.response.answer + `${s}\n\n`
             : res.response.answer;
-
-        type(answerContainer, answer, speed, index, relatedImages);
+        
+        type(answerContainer, answer, speed, index, relatedImages, source);
         goButton.classList.remove("button--loading");
     }
 }
 
-function type(container, text, speed = 10, index = 0, relatedImages) {
+function type(container, text, speed = 10, index = 0, relatedImages, source) {
 
     if (index < text.length) {
         container.textContent += text.charAt(index);
         index++;
         setTimeout(() => {
-            type(container, text, speed, index, relatedImages);
+            type(container, text, speed, index, relatedImages, source);
 
             if (index === text.length - 1) {
                 
@@ -149,7 +188,9 @@ function type(container, text, speed = 10, index = 0, relatedImages) {
                         fig.classList.add("treatment-image");
                         fig.classList.add("treatment-image-" + index);
                         const img = document.createElement("img");
-                        img.src = image.httpUri;
+
+                        const uris = imageUrl(image.httpUri);
+                        img.src = uris.src250;
                         img.alt = "Treatment Image";
                         img.classList.add("treatment-image");
                         fig.appendChild(img);
@@ -159,6 +200,9 @@ function type(container, text, speed = 10, index = 0, relatedImages) {
                         relatedImagesContainer.appendChild(fig);
                     });
                 }
+
+                const sourceContainer = $("#source");
+                sourceContainer.innerHTML = source;
 
             }
 
@@ -189,10 +233,14 @@ function onPageLoad(router) {
 }
 
 function tweakUrl(loc) {
-    window.zenodeo = 'http://localhost:3010';
+    window.uris = {
+        zenodo: 'https://zenodo.org',
+        zenodeo: 'http://localhost:3010',
+        tb: 'https://tb.plazi.org/GgServer/html'
+    };
 
     if (loc.indexOf('zaiweb.net') > -1) {
-        window.zenodeo = 'https://test.zenodeo.org';
+        window.uris.zenodeo = 'https://test.zenodeo.org';
     }
     else if (loc.indexOf('lucknow.local') > -1) {
         window.zenodeo = 'http://lucknow.local:3010';
