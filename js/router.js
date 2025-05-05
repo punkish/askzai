@@ -14,13 +14,15 @@ export class Router {
     }
 
     _navigate(path, addToHistory = true) {
+        if (path !== '/') {
+            path = '/index.html';
+        }
+
         const route = this.routes.find(r => r.path === path);
         
-        if (path !== '/') {
-            if (!route) {
-                console.log(`Route not found: ${path}`);
-                return;
-            }
+        if (!route) {
+            console.log(`Route not found: ${path}`);
+            return;
         }
 
         if (addToHistory) {
