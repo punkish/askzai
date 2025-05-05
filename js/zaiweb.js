@@ -310,7 +310,7 @@ function tweakUrl(loc) {
         tb: 'https://tb.plazi.org/GgServer/html'
     };
 
-    if (loc.indexOf('zaiweb.net') > -1) {
+    if (loc.indexOf('askzai.net') > -1) {
         window.uris.zenodeo = 'https://test.zenodeo.org';
     }
     else if (loc.indexOf('lucknow.local') > -1) {
