@@ -1,1 +1,1 @@
-Welcome to Zaiweb, home of Zai on the web.
+Welcome to Ask Zai, home of Zai on the web.
