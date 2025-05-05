@@ -24,5 +24,58 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# misc
+# OS generated files #
+######################
 .DS_Store
+ehthumbs.db
+Icon?
+Thumbs.db
+
+# Compiled source #
+###################
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# Packages #
+############
+# it's better to unpack these files and commit the raw source
+# git has its own built in compression methods
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# databases and scratch files #
+######################
+*.sql
+*.sqlite
+*.xml
+data/
+scratch/
+explorations/
+bak/
+
+# SQLite extensions
+sqlean-exts/
+
+# special files #
+#################
+local.js
+config.js
+
+# hidden files #
+################
+.nyc_output
+.env
+.tap
+.templates
+.vscode
+.zed
