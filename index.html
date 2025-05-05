@@ -82,12 +82,12 @@
 asks            └───────────┘                        
   │                   │                              
   │        ┌ ─ ─ ─ ─ ─│─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ 
-  │                   │          semantic cache^    │
-  │        │    ┌─────▼─────┐                        
-┌────┐       yes│is the     │           ┌──────┐    │
-│user│◀─42─┼────│answer in  │──────────▶│cache │     
-└────┘          │cache?     │           └───▲──┘    │
-           │    └───────────┘               │        
+┌────┐                │          semantic cache^    │
+│\O/ │     │    ┌─────▼─────┐                        
+│ |  │      yes │is the     │           ┌──────┐    │
+│/ \ │◀─42─┼────│answer in  │──────────▶│cache │     
+│user│          │cache?     │           └───▲──┘    │
+└────┘     │    └───────────┘               │        
                      no                     │       │
            └ ─ ─ ─ ─ ─│─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─│─ ─ ─ ─ 
                       │                     │        
@@ -111,7 +111,7 @@ asks            └───────────┘
                └────────────┘      │ranked paper    │
                                    └────────────────┘
             </pre>
-            <p>We use Meta's opensource <b>Llama 3.2:latest</b> to generate answers to questions based on the context provided. The context is chosen from the full text search result of the relevant tokens in your query ranked by their relevance (BM25 score).</p>
+            <p>We are using Alibaba's opensource <a href="https://qwenlm.github.io/blog/qwen3/" target="_blank">Qwen 3:0.6b</a> to generate answers to questions based on the context provided. The context is chosen from the full text search result of the relevant tokens in your query ranked by their relevance (BM25 score).</p>
 
             <p>^ Semantic cache is not yet implemented</p>
         </section>

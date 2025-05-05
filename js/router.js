@@ -14,7 +14,7 @@ export class Router {
     }
 
     _navigate(path, addToHistory = true) {
-        if (path !== '/') {
+        if (path === '/') {
             path = '/index.html';
         }
 
