@@ -137,40 +137,37 @@ form {
     --form-width: 100%;
     --reset-button-width: 30px;
     --go-button-width: 50px;
+    --buttons-width: calc(var(--reset-button-width) + var(--go-button-width));
     --button-height: 36px;
     --border-radius: 5px;
 }
 #form-wrapper {
     border: none;
+    position: relative;
 }
-#q_container {
+#q {
     width: var(--form-width);
     position: relative;
     border-bottom: 1px dotted black;
     min-height: var(--button-height);
     padding: 2px 10px;
-}
-#q_shadow {
-    color: lightgrey;
-    min-height: var(--button-height);
-/*     line-height: 2.1rem; */
-}
-#q {
-    border: none;
-    min-height: 2rem;
-    padding: 0;
-}
-#q_shadow,
-#q {
     font-family: sans-serif;
-    font-size: 1rem;
-    width: var(--form-width);
-    padding: 0px;
-
 }
 #q:focus {
     outline: none;
 }
+
+/* Add a placeholder to the div contendEditable */
+/* https://stackoverflow.com/a/20300212 */
+#q:empty:not(:focus):before {
+    content: attr(data-text);
+    color: lightgrey;
+}
+#q:empty:before {
+    content: ".";
+    color: white;
+}
+
 #buttons {
     border: 1px solid lightgrey;
     border-radius: var(--border-radius);
@@ -228,14 +225,18 @@ form {
 }
 
 @media (min-width: 550px) {
-    #q_container,
+    #q,
     #buttons {
         display: inline-block;
     }
-    #q_container {
-        width: calc(var(--form-width) - var(--reset-button-width) - var(--go-button-width) - 12px);
+    #q {
+        width: calc(var(--form-width) - var(--buttons-width) - 16px);
+    }
+    #buttons {
+        margin-top: 0;
     }
 }
+
 /*-------------------------------*/
 /* end: form styles              */
 /*-------------------------------*/
@@ -245,18 +246,19 @@ form {
     font-family: sans-serif;
     font-size: 10pt;
     width: 288px;
-    /*! padding: 0 1rem; */
 }
 #example-queries summary {
     cursor: pointer;
 }
-details[open] summary ~ * {
+
+/* How To Add CSS3 Transition With HTML5 details/summary tag reveal? */
+/* https://stackoverflow.com/a/38215801 */
+#example-queries[open] summary ~ * {
     animation: sweep 1s ease-in-out;
 }
-  
 @keyframes sweep {
-    0%    {opacity: 0; margin-top: -10px}
-    100%  {opacity: 1; margin-top: 0px}
+    0% {opacity: 0; transform: translateY(-10px)}
+  100% {opacity: 1; transform: translateY(0)}
 }
 #dropdown {
     padding: 0;
@@ -275,7 +277,11 @@ details[open] summary ~ * {
     color: blue;
     text-decoration: underline;
 }
-
+/*-------------------------------*/
+/* end: examples styles          */
+/*-------------------------------*/
+/* start: responses styles       */
+/*-------------------------------*/
 #response ol {
     padding-left: 1rem;
 }
@@ -364,7 +370,7 @@ figure {
 }
 figure img.lazyloaded {
     width: 100%;
-    max-width: 300px;
+    /* max-width: 300px; */
 }
 figure a:hover {
     background-color: unset;

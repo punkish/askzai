@@ -39,8 +39,9 @@ async function toJSON(body) {
 
 function submitForm(event) {
     event.preventDefault();
-    const tgt = event.target.q;
-    const query = tgt.value;
+    const input = $('#q');
+    input.innerText = input.innerText;
+    const query = input.innerText;
 
     if (query.length < 3) {
         tgt.placeholder = "C'mon now, say something!";
@@ -92,49 +93,103 @@ function imageUrl(httpUri) {
     return uris;
 }
 
-async function go(query) {
-    const answerContainer = $("#answer");
-    const responseContainer = $("#response");
-    const goButton = $("#go");
-    const relatedImagesContainer = $("#relatedImages");
-
-    goButton.classList.add("button--loading");
-    answerContainer.textContent = "";
-    responseContainer.innerHTML = "";
-    relatedImagesContainer.innerHTML = "";
-    
-    const input = $("#q");
-    const output = $("#q_shadow");
+function prepareSearchTerms(query) {
     const words = query.split(/\s+/);
+
+    // include only words…
     const filteredWords = words
+
+        // … longer than 2 chars
         .filter(word => word.length > 2)
-        .filter(word => !stopWords.includes(word.toLowerCase()));
+
+        // … not included in the stopWords
+        .filter(word => !stopWords.includes(word.toLowerCase()))
+
+        // … don't start with a -
+        .filter(word => !/^-/.test(word))
+
+        // … start with an optional +
+        .filter(word => /^\+?/.test(word));
     
+    // remove duplicates
     const uniqWords = Array.from(new Set(filteredWords));
+
+    const searchTerms = uniqWords.map(word => word
+        .toLowerCase()
+
+        // remove leading -
+        .replace(/^-/, '')
+
+        // remove leading +
+        .replace(/^\+/, '')
+
+        // enclose in double-quotes if the word is hyphenated
+        .replace(/(\w+-\w+)/, '"$1"')
+    );
+
+    let popPopStr = 'data-pop="top" data-pop-no-shadow data-pop-arrow';
     const str = words
-        .map(w => {
-            return uniqWords.includes(w) 
-                ? `<span class="hl">${w}</span>` 
-                : `<span aria-label="stopword removed from search" 
-                        data-pop="top" data-pop-no-shadow  
-                        data-pop-arrow>${w}</span>`;
+        .map(word => {
+            if (uniqWords.includes(word)) {
+                return `<span class="hl">${word}</span>\n`
+            }
+            else if (/^-/.test(word)) {
+                return `<span aria-label="word removed from search" ${popPopStr}>${word}</span>\n`
+            }
+            else if (/^\+/.test(word)) {
+                return `<span class="hl" aria-label="stopword included in search" ${popPopStr}>${word}</span>\n`
+            }
+            else {
+                return `<span aria-label="stopword removed from search" ${popPopStr}>${word}</span>\n`
+            }
         })
         .join(" ");
     
-    output.innerHTML = str;
-    output.classList.remove("obscure");
-    input.classList.add("obscure");
-    return;
+    return { searchTerms, str }
+}
+
+function stripThink(text) {
+    const oTag = '<think>';
+    const cTag = '</think>';
+
+    const startThink = text.indexOf(oTag) + oTag.length;
+    const endThink = text.indexOf(cTag);
+
+    const startAns = text.indexOf(cTag) + cTag.length;
+
+    const think = text.substring(startThink, endThink);
+    const answer = text.substring(startAns);
+
+    return { think, answer }
+}
+
+async function go(query) {
+    const goButton = $("#go");
+    goButton.classList.add("button--loading");
+
+    const responses = $$("#responses div");
+    responses.forEach(div => {
+        div.textContent = "";
+        div.innerHTML = "";
+    });
+    const answerContainer = $("#answer");
+    const responseContainer = $("#response");
+    const relatedImagesContainer = $("#relatedImages");
+    const sourceContainer = $("#source");
     
+    const output = $("#q");
+    const { searchTerms, str } = prepareSearchTerms(query);
+    output.innerHTML = str;
     const response = await fetch(`${window.uris.zenodeo}/v3/treatments?zai=${query}`);
     
     //const res = await toJSON(response.body);
 
     if (response.ok) {
         const res = await response.json();
+        let { think, answer } = stripThink(res.response.answer);
 
         const messages = [
-            `Conducted a full-text search for "${literalList(uniqWords)}"`,
+            `Conducted a full-text search for "${literalList(searchTerms)}"`,
             `Found <span class="res">${res.count}</span> papers`,
             `Using the full text of the top ranked paper, asked Zai: <span class="res">"${query}"</span>`
         ];
@@ -143,7 +198,6 @@ async function go(query) {
             .map(message => `<li class="message">${message}</li>`)
             .join("");
 
-        responseContainer.innerHTML = `<ol>${str}</ol>`;
         const source = `<div id="citation">Answer generated based on the treatment: <a href="${window.uris.tb}/${res.response.treatmentId}" target="_blank">${res.response.treatmentTitle}</a> from <cite>${res.response.articleAuthor}. ${res.response.publicationDate}. ${res.response.articleTitle}, DOI: <a href="https://doi.org/${res.response.articleDOI}">${res.response.articleDOI}</a></cite></div>`;
 
         const speed = 5;
@@ -153,74 +207,88 @@ async function go(query) {
             ? ` Here are a few related images`
             : ` Here is a related image`;
         
-        const answer = relatedImages
-            ? res.response.answer + `${s}\n\n`
-            : res.response.answer;
+        if (relatedImages) {
+            answer = answer + `${s}\n\n`;
+        }
         
         type(answerContainer, answer, speed, index, relatedImages, source);
         goButton.classList.remove("button--loading");
     }
 }
 
-function type(container, text, speed = 10, index = 0, relatedImages, source) {
+function drawImage(relatedImages, source) {
+    if (relatedImages) {
+        const relatedImagesContainer = $("#relatedImages");
 
-    function drawImage(relatedImages, source) {
-        if (relatedImages) {
-            const relatedImagesContainer = $("#relatedImages");
+        let defaultImgSrc = '250'
+        let defaultImgWidth = 255;
 
-            if (relatedImages.length === 1) {
-                relatedImagesContainer.classList.remove("columns");
-                relatedImagesContainer.classList.add("column");
-            }
-            else {
-                relatedImagesContainer.classList.remove("column");
-                relatedImagesContainer.classList.add("columns");
-            }
+        if (relatedImages.length === 1) {
+            relatedImagesContainer.classList.remove("columns");
+            relatedImagesContainer.classList.add("column");
+            defaultImgSrc = '1200';
+            defaultImgWidth = 928;
 
-            relatedImages.forEach((image, index) => {
-                const fig = document.createElement("figure");
-                fig.classList.add(`treatment-image-${index}`);
-                const img = document.createElement("img");
-
-                const uris = imageUrl(image.httpUri);
-                img.src = "img/bug.gif";
-                img.dataset.src = uris.src250;
-                img.width = 255;
-                img.alt = "Treatment Image";
-                img.classList.add("lazyload");
-                fig.appendChild(img);
-                const figcaption = document.createElement("figcaption");
-                figcaption.textContent = image.captionText;
-                fig.appendChild(figcaption);
-                relatedImagesContainer.appendChild(fig);
-            });
+        }
+        else {
+            relatedImagesContainer.classList.remove("column");
+            relatedImagesContainer.classList.add("columns");
         }
 
-        const sourceContainer = $("#source");
-        sourceContainer.innerHTML = source;
+        relatedImages.forEach((image, index) => {
+            const fig = document.createElement("figure");
+            fig.classList.add(`treatment-image-${index}`);
+            const img = document.createElement("img");
+
+            const uris = imageUrl(image.httpUri);
+            img.src = "img/bug.gif";
+            img.dataset.src = uris[`src${defaultImgSrc}`];
+            img.width = defaultImgWidth;
+            img.alt = "Treatment Image";
+            img.classList.add("lazyload");
+            fig.appendChild(img);
+            const figcaption = document.createElement("figcaption");
+            figcaption.textContent = image.captionText;
+            fig.appendChild(figcaption);
+            relatedImagesContainer.appendChild(fig);
+        });
     }
 
-    if (index < (text.length)) {
-        container.textContent += text.charAt(index);
-        index++;
-        setTimeout(() => {
-            type(container, text, speed, index, relatedImages, source);
-        }, speed);
+    const sourceContainer = $("#source");
+    sourceContainer.innerHTML = source;
+}
 
-        if (index === (text.length - 1)) {
+function type(container, text, speed = 10, index = 0, relatedImages, source) {
+    container.textContent += text.charAt(index);
+
+    setTimeout(() => {
+        index++;
+
+        if (index < (text.length)) {
+            type(container, text, speed, index, relatedImages, source);
+        }
+        else {
             drawImage(relatedImages, source);
         }
-    }
+    })
+    // if (index < (text.length)) {
+    //     container.textContent += text.charAt(index);
+    //     index++;
+    //     setTimeout(() => {
+    //         type(container, text, speed, index, relatedImages, source);
+    //     }, speed);
+
+    //     if (index === (text.length - 1)) {
+    //         drawImage(relatedImages, source);
+    //     }
+    // }
 
 }
 
 function reset() {
     const input = $("#q");
-    const output = $("#q_shadow");
-    input.classList.remove("obscure");
-    input.value = "";
-    output.innerHTML = "";
-    output.classList.add("obscure");
+    // input.classList.add("empty");
+    input.innerHTML = "";
 }
 
 function onPageLoad(router) {

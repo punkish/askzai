@@ -32,21 +32,18 @@
         <section id="index">
             <form>
                 <div id="form-wrapper">
-                    <div id="q_container">
-                        <div id="q_shadow" class="obscure"></div>
-                        <input type="text" id="q" name="q" placeholder="Ask me something!"> 
-                    </div>
+                    <div id="q" contentEditable="true" 
+                        data-text="Ask me something!" 
+                        spellcheck="false"></div>
                     <div id="buttons">
-                        <button id="reset" type="reset" aria-label="reset search" 
-                            data-pop="top" data-pop-no-shadow  
-                            data-pop-arrow>&#8855;</button>
-                            <button id="go" type="submit">→</button> 
+                        <button id="reset" type="reset" 
+                            aria-label="reset search" data-pop="top" 
+                            data-pop-no-shadow data-pop-arrow>&#8855;</button>
+                        <button id="go" type="submit">→</button> 
                     </div>
                 </div>
                 <details id="example-queries">
-                    <summary>
-                        example queries
-                    </summary>
+                    <summary>example queries</summary>
                     <div>
                         <p>Keep the queries short, three to five words long. Focus on a single task and a single species, and include the name of the species in the query. These tricks allow a more focused context to be presented to the LLM. Here are a few examples to get you started:</p>
                         <ul id="dropdown">
@@ -58,13 +55,14 @@
                         </ul>
                     </div>
                 </details>
-            </div>
             </form>
 
-            <div id="response"></div>
-            <div id="answer"></div>
-            <div id="relatedImages" class="columns"></div>
-            <div id="source"></div>
+            <div id="responses">
+                <div id="response"></div>
+                <div id="answer"></div>
+                <div id="relatedImages" class="columns"></div>
+                <div id="source"></div>
+            </div>
         </section>
         
         <section id="about" class="hidden">
@@ -144,23 +142,13 @@ asks            └───────────┘
         $('form').addEventListener('submit', submitForm);
         tweakUrl(window.location.href);
 
-        // function revealExamples() {
-        //     $('#example-queries div').classList.toggle('hidden');
-        // }
-
-        // $('#example-queries h4').addEventListener('click', (e) => {
-        //     e.preventDefault();
-        //     revealExamples();
-        // });
-
         $$('#dropdown li').forEach((item) => {
             item.addEventListener('click', (e) => {
                 e.preventDefault();
                 const input = $('#q');
-                input.value = e.target.innerText;
+                input.innerText = e.target.innerText;
                 document.querySelector('#example-queries').open = false;
-                // revealExamples();
-                go(input.value);
+                go(input.innerText);
             });
         });
     </script>
