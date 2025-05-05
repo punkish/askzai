@@ -16,9 +16,11 @@ export class Router {
     _navigate(path, addToHistory = true) {
         const route = this.routes.find(r => r.path === path);
         
-        if (!route) {
-            console.log(`Route not found: ${path}`);
-            return;
+        if (path !== '/') {
+            if (!route) {
+                console.log(`Route not found: ${path}`);
+                return;
+            }
         }
 
         if (addToHistory) {
