@@ -75,41 +75,44 @@
             <a class="route backhome" href="/index.html">←</a>
             <h2>How this works</h2>
             <pre>
-                ┌───────────┐                        
-                │what is the│                        
-  ┌────────────▶│meaning of │                        
-  │             │life?      │                        
-asks            └───────────┘                        
-  │                   │                              
-  │        ┌ ─ ─ ─ ─ ─│─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ 
-┌────┐                │          semantic cache^    │
-│\O/ │     │    ┌─────▼─────┐                        
-│ |  │      yes │is the     │           ┌──────┐    │
-│/ \ │◀─42─┼────│answer in  │──────────▶│cache │     
-│user│          │cache?     │           └───▲──┘    │
-└────┘     │    └───────────┘               │        
-                     no                     │       │
-           └ ─ ─ ─ ─ ─│─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─│─ ─ ─ ─ 
-                      │                     │        
-             ┌────────▼───────┐             │        
-             │remove stopwords│       ┌─────┴────┐   
-             │"what", "is",   │       │ response │   
-             │"the", and "of" │       └─────▲────┘   
-             └────────┬───────┘             │        
-                      │                     │        
-             ┌────────▼───────┐       ┌─────┴────┐   
-             │full text search│       │   LLM    │   
-             │of "meaning" and│       └─────▲────┘   
-             │"life"          │             │        
-             └────────┬───────┘             │        
-                      │            ┌────────┴───────┐
-                      │            │question: "what │
-               ┌──────▼─────┐      │is the meaning  │
-               │papers      │      │of life?"       │
-               │ranked by   │─────▶│                │
-               │relevance   │      │context: top    │
-               └────────────┘      │ranked paper    │
-                                   └────────────────┘
+                  ┌───────────┐                        
+                  │what is the│                        
+    ┌────────────▶│meaning of │                        
+    │             │life?      │                        
+  asks            └───────────┘                        
+    │                   │                              
+    │        ┌ ─ ─ ─ ─ ─│─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ 
+  ┌────┐                │          semantic cache^    │
+  │\O/ │     │    ┌─────▼─────┐                        
+  │ |  │      yes │is the     │           ┌──────┐    │
+  │/ \ │◀──42┼────│answer in  │──────────▶│cache │     
+  │user│          │cache?     │           └───▲──┘    │
+  └────┘     │    └───────────┘               │        
+                       no                     │       │
+             └ ─ ─ ─ ─ ─│─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─│─ ─ ─ ─ 
+                        │                     │        
+               ┌────────▼───────┐             │        
+               │remove stopwords│       ┌─────┴────┐   
+               │"what", "is",   │       │ response │   
+               │"the", and "of" │       └─────▲────┘   
+               └────────┬───────┘             │        
+                        │               ┌─────┴────┐   
+               ┌────────▼───────┐       │   LLM    │   
+               │full text search│       └─────▲────┘   
+               │of "meaning" and│             │        
+               │"life"          │             │        
+               └────────┬───────┘    ┌────────┴───────┐
+                        │            │question: "what │
+                        │            │is the meaning  │
+                        │            │of life?"       │
+                        │    top   ─▶│                │
+                        │   ranked   │context: full   │
+                        │   paper    │text of the     │
+                 ┌──────▼─────┐  │   │paper           │
+                 │papers      │  │   └────────────────┘
+                 │ranked by   │──┘                     
+                 │relevance   │                        
+                 └────────────┘                        
             </pre>
             <p>We are using Alibaba's opensource <a href="https://qwenlm.github.io/blog/qwen3/" target="_blank">Qwen 3:0.6b</a> to generate answers to questions based on the context provided. The context is chosen from the full text search result of the relevant tokens in your query ranked by their relevance (BM25 score).</p>
 
