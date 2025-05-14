@@ -128,7 +128,7 @@ function prepareSearchTerms(query) {
     );
 
     let popPopStr = 'data-pop="top" data-pop-no-shadow data-pop-arrow';
-    const str = words
+    const outputHTML = words
         .map(word => {
             if (uniqWords.includes(word)) {
                 return `<span class="hl">${word}</span>\n`
@@ -145,7 +145,7 @@ function prepareSearchTerms(query) {
         })
         .join(" ");
     
-    return { searchTerms, str }
+    return { searchTerms, outputHTML }
 }
 
 function stripThink(text) {
@@ -158,65 +158,76 @@ function stripThink(text) {
     const startAns = text.indexOf(cTag) + cTag.length;
 
     const think = text.substring(startThink, endThink);
-    const answer = text.substring(startAns);
+    const conclusion = text.substring(startAns);
 
-    return { think, answer }
+    return { think, conclusion }
+}
+
+function sourcesHTML({ sourceName, sources }) {
+    const srcList = sources.map((s, i) => `<li id="source-${i + 1}" class="sources"><a href="${window.uris.tb}/${s.treatmentId}" target="_blank">${s.treatmentTitle}</a> from <cite>${s.articleAuthor}. ${s.publicationDate}. ${s.articleTitle}, DOI: <a href="https://doi.org/${s.articleDOI}">${s.articleDOI}</a></cite></li>`);
+
+    return `Answer generated based on the following ${sourceName}:
+    <ol>${srcList}</ol>`;
+}
+
+function responsesHTML(searchTerms, count, query) {
+    return `<ul>
+        <li class="message">Conducted a full-text search for "${literalList(searchTerms)}"</li>
+        <li class="message">Found <span class="res">${count}</span> papers</li>
+        <li class="message">Using the full text of the <a href="#source-0">top ranked paper</a>, asked Zai: <span class="res">"${query}"</span></li>
+    </ul>`
 }
 
 async function go(query) {
     const goButton = $("#go");
     goButton.classList.add("button--loading");
 
+    // Empty all the divs inside the responses div
     const responses = $$("#responses div");
     responses.forEach(div => {
         div.textContent = "";
         div.innerHTML = "";
     });
-    const answerContainer = $("#answer");
-    const responseContainer = $("#response");
-    const relatedImagesContainer = $("#relatedImages");
-    const sourceContainer = $("#source");
     
     const output = $("#q");
-    const { searchTerms, str } = prepareSearchTerms(query);
-    output.innerHTML = str;
-    const response = await fetch(`${window.uris.zenodeo}/v3/treatments?zai=${query}`);
+    const { searchTerms, outputHTML } = prepareSearchTerms(query);
+    output.innerHTML = outputHTML;
+    const url = `${window.uris.zenodeo}/v3/treatments?askzai=${query}`;
+    const resp = await fetch(url);
     
     //const res = await toJSON(response.body);
 
-    if (response.ok) {
-        const res = await response.json();
-        let { think, answer } = stripThink(res.response.answer);
+    if (resp.ok) {
+        const { query, response } = await resp.json();
+        const { fts, answer } = response;
+        const { count, sources } = fts;
 
-        const messages = [
-            `Conducted a full-text search for "${literalList(searchTerms)}"`,
-            `Found <span class="res">${res.count}</span> papers`,
-            `Using the full text of the top ranked paper, asked Zai: <span class="res">"${query}"</span>`
-        ];
+        const responseContainer = $("#response");
+        responseContainer.innerHTML = responsesHTML(searchTerms, count, query);
 
-        const str = messages
-            .map(message => `<li class="message">${message}</li>`)
-            .join("");
+        let { think, conclusion } = stripThink(answer);
 
-        const source = `<div id="citation">Answer generated based on the treatment: <a href="${window.uris.tb}/${res.response.treatmentId}" target="_blank">${res.response.treatmentTitle}</a> from <cite>${res.response.articleAuthor}. ${res.response.publicationDate}. ${res.response.articleTitle}, DOI: <a href="https://doi.org/${res.response.articleDOI}">${res.response.articleDOI}</a></cite></div>`;
-
-        const speed = 5;
-        const index = 0;
-        const relatedImages = res.response.images;
-        const s = relatedImages.length > 1
-            ? ` Here are a few related images`
-            : ` Here is a related image`;
-        
-        if (relatedImages) {
-            answer = answer + `${s}\n\n`;
+        if (sources[0].images.length == 1) {
+            conclusion = `${conclusion} Here is a related image\n`
         }
-        
-        type(answerContainer, answer, speed, index, relatedImages, source);
+        else if (sources[0].images.length > 1) {
+            conclusion = `${conclusion} Here are a few related images\n\n`;
+        }
+
+        type({
+            answerContainer: $("#answer"), 
+            conclusion, 
+            relatedImages: sources[0].images, 
+            sourceHTML: sourcesHTML({
+                sourceName: sources.length > 1 ? 'treatments' : 'treatment',
+                sources
+            })
+        });
         goButton.classList.remove("button--loading");
     }
 }
 
-function drawImage(relatedImages, source) {
+function drawImage(relatedImages, sourceHTML) {
     if (relatedImages) {
         const relatedImagesContainer = $("#relatedImages");
 
@@ -255,22 +266,35 @@ function drawImage(relatedImages, source) {
     }
 
     const sourceContainer = $("#source");
-    sourceContainer.innerHTML = source;
+    sourceContainer.innerHTML = sourceHTML;
 }
 
-function type(container, text, speed = 10, index = 0, relatedImages, source) {
-    container.textContent += text.charAt(index);
+function type({
+    answerContainer, 
+    conclusion, 
+    speed = 5, 
+    index = 0, 
+    relatedImages, 
+    sourceHTML
+}) {
+    answerContainer.textContent += conclusion.charAt(index);
 
     setTimeout(() => {
         index++;
 
-        if (index < (text.length)) {
-            type(container, text, speed, index, relatedImages, source);
+        if (index < (conclusion.length)) {
+            type({
+                answerContainer, 
+                conclusion, 
+                index,
+                relatedImages, 
+                sourceHTML
+            });
         }
         else {
-            drawImage(relatedImages, source);
+            drawImage(relatedImages, sourceHTML);
         }
-    })
+    }, speed)
     // if (index < (text.length)) {
     //     container.textContent += text.charAt(index);
     //     index++;

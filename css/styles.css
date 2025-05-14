@@ -478,3 +478,7 @@ figcaption details[open] summary {
     padding: 1rem;
     font-size: 0.8rem;
 }
+
+#source ol {
+    padding: 0 1rem;
+}
