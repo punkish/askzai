@@ -35,6 +35,7 @@
                     <div id="q" contentEditable="true" 
                         data-text="Ask me something!" 
                         spellcheck="false"></div>
+                    <input id="q_shadow" type="hidden" value="">
                     <div id="buttons">
                         <button id="reset" type="reset" 
                             aria-label="reset search" data-pop="top" 
@@ -153,6 +154,16 @@
                 document.querySelector('#example-queries').open = false;
                 go(input.innerText);
             });
+        });
+
+        // https://stackoverflow.com/a/33239883
+        $("#q").addEventListener("keydown", function(e){
+
+            //if enter key is pressed
+            if(e.keyCode== 13 || e.which== 13) { 
+                e.preventDefault();
+                submitForm(e);
+            }
         });
     </script>
 </body>
