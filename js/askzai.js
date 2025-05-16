@@ -190,15 +190,21 @@ function stripThink(text) {
     const oTag = '<think>';
     const cTag = '</think>';
 
-    const startThink = text.indexOf(oTag) + oTag.length;
-    const endThink = text.indexOf(cTag);
+    if (text.indexOf(oTag) > -1) {
+        const startThink = text.indexOf(oTag) + oTag.length;
+        const endThink = text.indexOf(cTag);
 
-    const startAns = text.indexOf(cTag) + cTag.length;
+        const startAns = text.indexOf(cTag) + cTag.length;
 
-    const think = text.substring(startThink, endThink);
-    const conclusion = text.substring(startAns);
+        const think = text.substring(startThink, endThink);
+        const conclusion = text.substring(startAns);
 
-    return { think, conclusion }
+        return { think, conclusion }
+    }
+    else {
+        return { conclusion: text }
+    }
+    
 }
 
 function sourcesHTML({ sourceName, sources }) {
@@ -210,7 +216,7 @@ function sourcesHTML({ sourceName, sources }) {
 
 function responsesHTML(searchTerms, count, stored, ttl, cacheHit) {
     let str = '';
-    
+
     if (cacheHit) {
         const storedDate = new Date(stored);
         const expires = new Date(stored + ttl) - new Date();
