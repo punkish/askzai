@@ -46,13 +46,16 @@
                 <details id="example-queries">
                     <summary>example queries</summary>
                     <div>
-                        <p>Keep the queries short, three to five words long. Focus on a single task and a single species, and include the name of the species in the query. These tricks allow a more focused context to be presented to the LLM. Here are a few examples to get you started:</p>
+                        <p>Keep the queries short, three to five words long. Focus on a single task and a single species, and <i>include</i> the <span class="species-name">name of the species</span> in the query. These tricks allow a more focused context to be presented to the LLM. Here are a few examples to get you started:</p>
                         <ul id="dropdown">
-                            <li>What is Saigona baiseensis?</li>
-                            <li>Describe Saigona sinicola</li>
-                            <li>Describe Carvalhoma malcolmae</li>
-                            <li>Does Rhinolophus sinicus live in caves?</li>
-                            <li>Where does Laephotis botswanae roost?</li>
+                            <li>What is <span class="species-name">Saigona baiseensis</span>?</li>
+                            <li>Describe <span class="species-name">Saigona sinicola</span></li>
+                            <li>Describe <span class="species-name">Carvalhoma malcolmae</span></li>
+                            <li>Does <span class="species-name">Rhinolophus sinicus</span> live in caves?</li>
+                            <li>Where does <span class="species-name">Laephotis botswanae</span> roost?</li>
+                            <li>What distinguishes <span class="species-name">Choanolaimus sparsiporus</span>?</li>
+                            <li>What is the etymology of <span class="species-name">Gammanema lunatum</span>?</li>
+                            <li>Describe <span class="species-name">Amnestus sinuosus</span></li>
                         </ul>
                     </div>
                 </details>
@@ -150,7 +153,9 @@
             item.addEventListener('click', (e) => {
                 e.preventDefault();
                 const input = $('#q');
-                input.innerText = e.target.innerText;
+                input.innerText = e.target.tagName === 'SPAN' 
+                    ? e.target.parentNode.innerText
+                    : e.target.innerText;
                 document.querySelector('#example-queries').open = false;
                 go(input.innerText);
             });

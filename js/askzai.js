@@ -1,6 +1,44 @@
 import { $, $$ } from './utils.js';
 import { stopWords } from "./stopwords.js";
 
+// Convert milliseconds to days:hours:mins without seconds
+// https://stackoverflow.com/a/8528531/183692
+function formatTime(ms) {
+    const ms_in_h = 60 * 60 * 1000;
+    const ms_in_d = 24 * ms_in_h;
+    let d = Math.floor(ms / ms_in_d);
+    let h = Math.floor( (ms - (d * ms_in_d)) / ms_in_h);
+    let m = Math.round( (ms - (d * ms_in_d) - (h * ms_in_h)) / 60000);
+    const pad = (n) => n < 10 ? '0' + n : n;
+
+    if (m === 60) {
+        h++;
+        m = 0;
+    }
+
+    if (h === 24) {
+        d++;
+        h = 0;
+    }
+
+    return `${d} days ${pad(h)} hours ${pad(m)} mins`;
+}
+
+function formatDate(d) {
+    const yyyy = d.getFullYear();
+    const mm = d.getMonth();
+    const dd = d.getDate();
+    const hh = d.getHours();
+    const mn = d.getMinutes();
+    const ss = d.getSeconds();
+    const months = [ 
+        'January', 'February', 'March', 'April', 'May', 'June', 'July', 
+        'August', 'September', 'October', 'November', 'December'
+    ];
+
+    return `${dd} ${months[mm]}, ${yyyy} ${hh}:${mn}:${ss}`;
+}
+
 function literalList(arr) {
 
     if (arr.length === 1) {
@@ -170,11 +208,21 @@ function sourcesHTML({ sourceName, sources }) {
     <ol>${srcList}</ol>`;
 }
 
-function responsesHTML(searchTerms, count, query) {
-    return `<ul>
+function responsesHTML(searchTerms, count, stored, ttl, cacheHit) {
+    let str = '';
+    
+    if (cacheHit) {
+        const storedDate = new Date(stored);
+        const expires = new Date(stored + ttl) - new Date();
+        str = `<span aria-label="cache hit, stored ${formatDate(storedDate)}, expires in ${formatTime(expires)}" data-html="true" data-pop="top" data-pop-no-shadow data-pop-arrow data-pop-multiline>💥</span>`;
+    }
+
+    return `
+    <p>Zai says ${str}</p>
+    <ul>
         <li class="message">Conducted a full-text search for "${literalList(searchTerms)}"</li>
         <li class="message">Found <span class="res">${count}</span> papers</li>
-        <li class="message">Using the full text of the <a href="#source-0">top ranked paper</a>, asked Zai: <span class="res">"${query}"</span></li>
+        <li class="message">Using the full text of the <a href="#source-0">top ranked paper</a>, found the following:</li>
     </ul>`
 }
 
@@ -198,12 +246,12 @@ async function go(query) {
     //const res = await toJSON(response.body);
 
     if (resp.ok) {
-        const { query, response } = await resp.json();
+        const { query, response, stored, ttl, isSemantic, cacheHit } = await resp.json();
         const { fts, answer } = response;
         const { count, sources } = fts;
 
         const responseContainer = $("#response");
-        responseContainer.innerHTML = responsesHTML(searchTerms, count, query);
+        responseContainer.innerHTML = responsesHTML(searchTerms, count, stored, ttl, cacheHit);
 
         let { think, conclusion } = stripThink(answer);
 

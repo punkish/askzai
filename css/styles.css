@@ -252,6 +252,9 @@ form {
 #example-queries summary {
     cursor: pointer;
 }
+#example-queries .species-name {
+    text-decoration: underline wavy green;
+}
 
 /* How To Add CSS3 Transition With HTML5 details/summary tag reveal? */
 /* https://stackoverflow.com/a/38215801 */
