@@ -381,6 +381,10 @@ function onPageLoad(router) {
     $('#reset').addEventListener('click', reset);
 }
 
+/** 
+ * adjust the server urls based on where the app is running
+ *
+ */
 function tweakUrl(loc) {
     window.uris = {
         zenodo: 'https://zenodo.org',

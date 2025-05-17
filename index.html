@@ -75,6 +75,49 @@
             <p>This is a Plazi production.</p>
         </section>
 
+        <section id="semantic-cache" class="hidden">
+            <a class="route backhome" href="/index.html">←</a>
+            <h2>Semantic Cache</h2>
+            <p>We use the <a href="https://huggingface.co/Supabase/gte-small" target="_blank">Supabase/gte-small</a> model for generating vector embeddings of queries.</p>
+            <pre>
+                                       ┌───────────┐    
+                                       │what is the│    
+     ┌────────────────────────────────▶│meaning of │──┐ 
+     │                                 │life?      │  │ 
+   asks                                └───────────┘  │ 
+     │                                       │        │ 
+     │        ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─│─ ─ ─ ─ ┼ 
+     │           semantic cache              │        ││
+  ┌────┐      │       ┌─────────┐     ┌──────▼────┐   │ 
+  │\O/ │              │search   │     │convert    │   ││
+  │ |  │  42  │       │for exact│     │query to   │   │ 
+  │/ \ │◀───────found─┤key in   ◀─────│unique     │   ││
+  │user│      │       │cache    │     │cache key  │   │ 
+  └────┘              └────┬────┘     └───────────┘   ││
+     ▲        │            │                          │ 
+     │                  not found                     ││
+     │        │            │                          │ 
+     │                ┌────▼────┐                     ││
+     │        │       │convert  │                     │ 
+     │                │to       │                     ││
+     │        │       │embedding│◀────────────────────┘ 
+     │                │vector   │                      │
+     │        │       └─────────┘                       
+     │                                                 │
+     │        │       ┌────────────────────┐            
+     │                │search for query    │           │
+     │        │       │with highest cosine │            
+     └──────────found─│similarity above a  │           │
+              │       │preset threshold    │            
+                      └────────────────────┘           │
+              │                  │                      
+               ─ ─ ─ ─ ─ ─ ─ ─ ─ ┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘
+                                no                      
+                                 │                      
+                                 ▼                      
+            </pre>
+        </section>
+
         <section id="how-this-works" class="hidden">
             <a class="route backhome" href="/index.html">←</a>
             <h2>How this works</h2>
@@ -86,7 +129,7 @@
   asks            └───────────┘                        
     │                   │                              
     │        ┌ ─ ─ ─ ─ ─│─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ 
-  ┌────┐                │          semantic cache^    │
+  ┌────┐                │          semantic cache     │
   │\O/ │     │    ┌─────▼─────┐                        
   │ |  │      yes │is the     │           ┌──────┐    │
   │/ \ │◀──42┼────│answer in  │──────────▶│cache │     
@@ -118,9 +161,7 @@
                  │relevance   │                        
                  └────────────┘                        
             </pre>
-            <p>We are using Alibaba's opensource <a href="https://qwenlm.github.io/blog/qwen3/" target="_blank">Qwen 3:0.6b</a> to generate answers to questions based on the context provided. The context is chosen from the full text search result of the relevant tokens in your query ranked by their relevance (BM25 score).</p>
-
-            <p>^ Semantic cache is not yet implemented</p>
+            <p>We are testing various LLMs including Alibaba's <a href="https://qwenlm.github.io/blog/qwen3/" target="_blank">Qwen 3:0.6b</a>, Meta's <a href="https://www.llama.com/models/llama-3/#models" target="_blank">Llama 3.2:1b and 3b</a>, and Google's <a href="https://ai.google.dev/gemma" target="_blank">Gemma 3</a> to generate answers to questions based on the context provided. The context is chosen from the full text search result of the relevant tokens in your query ranked by their relevance (BM25 score). The generated answers are stored in a <a href="/semantic-cache.html" class="route">semantic cache</a> for fast retrieval for subsequent queries.</p>
         </section>
     </main>
     <footer>
@@ -130,46 +171,62 @@
     <script type="module">
         import { $, $$ } from './js/utils.js';
         import { Router, reroute } from './js/router.js';   
-        import { onPageLoad, submitForm, go, reset, tweakUrl } from './js/askzai.js';
+        import { 
+            onPageLoad, submitForm, go, reset, tweakUrl 
+        } from './js/askzai.js';
 
-        const routes = Array.from($$('.route')).map(link => { 
-            return {
-                link, 
-                path: link.getAttribute('href'),
-                component: () => reroute(
-                    link.getAttribute('href')
-                        .replace('/', '')
-                        .replace('.html', '')
-                )
-            }
-        });
-
-        const router = new Router(routes);
-        document.addEventListener('DOMContentLoaded', (event) => onPageLoad(router));
-        $('form').addEventListener('submit', submitForm);
         tweakUrl(window.location.href);
 
-        $$('#dropdown li').forEach((item) => {
-            item.addEventListener('click', (e) => {
-                e.preventDefault();
-                const input = $('#q');
-                input.innerText = e.target.tagName === 'SPAN' 
-                    ? e.target.parentNode.innerText
-                    : e.target.innerText;
-                document.querySelector('#example-queries').open = false;
-                go(input.innerText);
-            });
-        });
+        document.addEventListener(
+            'DOMContentLoaded',
+            (event) => {
+                // Initialize the router
+                const routes = Array.from($$('.route')).map(link => { 
+                    return {
+                        link, 
+                        path: link.getAttribute('href'),
+                        component: () => reroute(
+                            link.getAttribute('href')
+                                .replace('/', '')
+                                .replace('.html', '')
+                        )
+                    }
+                });
 
-        // https://stackoverflow.com/a/33239883
-        $("#q").addEventListener("keydown", function(e){
+                const router = new Router(routes);
 
-            //if enter key is pressed
-            if(e.keyCode== 13 || e.which== 13) { 
-                e.preventDefault();
-                submitForm(e);
+                onPageLoad(router);
+                $('form').addEventListener('submit', submitForm);
+
+                // https://stackoverflow.com/a/33239883
+                $("#q").addEventListener("keydown", function(e){
+
+                    //if enter key is pressed
+                    if(e.keyCode== 13 || e.which== 13) { 
+                        e.preventDefault();
+                        submitForm(e);
+                    }
+                });
+
+                $$('#dropdown li').forEach((item) => {
+                    item.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const input = $('#q');
+                        input.innerText = e.target.tagName === 'SPAN' 
+                            ? e.target.parentNode.innerText
+                            : e.target.innerText;
+                        $('#example-queries').open = false;
+                        go(input.innerText);
+                    });
+                });
+
+                
+                $('.columns').style.setProperty(
+                    '--container-width', 
+                    $('main').clientWidth
+                );
             }
-        });
+        );
     </script>
 </body>
 </html>

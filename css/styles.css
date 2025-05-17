@@ -8,7 +8,7 @@
  * viewport height. See 
  * https://developer.mozilla.org/en-US/docs/Web/CSS/Layout_cookbook/Sticky_footers
  */
- html {
+html {
     height: 100%;
 }
 body {
@@ -44,11 +44,6 @@ pre {
     display: inline-block;
     padding: 0.5rem;
 }
-@media (min-width: 550px) {
-    pre {
-        font-size: 8pt;
-    }
-}
 
 /* obscure hides the input element so #q_shadow stands out alone */
 .obscure {
@@ -73,12 +68,6 @@ pre {
 /*-------------------------------*/
 header {
     text-align: center;
-}
-@media (min-width: 550px) {
-    header {
-        height: 7rem;
-        padding-top: 2.5rem;
-    }
 }
 header img {
     cursor: pointer;
@@ -226,19 +215,6 @@ form {
 
 }
 
-@media (min-width: 550px) {
-    #q,
-    #buttons {
-        display: inline-block;
-    }
-    #q {
-        width: calc(var(--form-width) - var(--buttons-width) - 16px);
-    }
-    #buttons {
-        margin-top: 0;
-    }
-}
-
 /*-------------------------------*/
 /* end: form styles              */
 /*-------------------------------*/
@@ -316,25 +292,46 @@ form {
       animation: blink 1s step-end infinite;
     }
 }
+/*-------------------------------*/
+/* end: responses styles         */
+/*-------------------------------*/
+/* start: columns styles         */
+/*-------------------------------*/
 
-/* grid for figures */
-.column {
-    display: inline-block;
-    width: 100%;
-    margin: 0 auto;
-    padding: 0;
-    text-align: center;
-}
+/*
+◀─────────────────────a = 928─────────────────────▶
+┌─────────────┐   ┌─────────────┐   ┌─────────────┐
+│col          │   │col          │   │col          │
+│┌───────────┐│   │             │   │             │
+││fig        ││   │             │   │             │
+││┌─────────┐││   │a - ((cc - 1)│   │             │
+│││img      │││   │    * b)     │   │             │
+│││         │││   │◀───────────▶│   │             │
+│││         │││   │             │   │             │
+│││         │││   │             │   │             │
+│││         │││   │             │   │             │
+│││         │││   │             │   │             │
+│││         │││   │             │   │             │
+││└─────────┘││◀─▶│             │◀─▶│             │
+│└───────────┘│ │ │             │ │ │             │
+└─────────────┘ │ └─────────────┘ │ └─────────────┘
+                │                 │                
+                └───▶ b = 30  ◀───┘                
+                                                   
+                 cc = column count                 
+*/
+
 .columns {
+    --container-width: 290px;
     --column-count: 1;
     --column-gap: 30px;
-    --image-size: 288px;
-    --columns-width: calc( var(--image-size) * var(--column-count) );
-    --gaps-width: calc( var(--column-gap) * (var(--column-count) - 1)  );
-    --grid-width: calc( var(--columns-width) + var(--gaps-width) );
-
-    width: var(--grid-width);
-    max-width: var(--grid-width);
+    --column-width: calc( 
+        var(--container-width) - (
+            (var(--column-count) - 1) * var(--column-gap)
+        )
+    );
+    width: var(--column-width);
+    max-width: var(--column-width);
     margin: 0 auto;
 
     column-count: var(--column-count);
@@ -349,67 +346,14 @@ form {
     break-inside: avoid;
     -webkit-column-break-inside: avoid;
 }
-/* Larger than phablet */
-@media (min-width: 550px) {
-    .columns {
-        --column-count: 2 !important;
-    }
-}
-
-/* Larger than tablet */
-@media (min-width: 768px) {
-    .columns {
-        --column-count: 3 !important;
-        --image-size: 238px;
-    }
-}
-
 figure {
     position: relative;
     height: auto;
     border: 1px solid #444;
     margin: 0;
-    padding: 0px;
+    padding: 0;
     opacity: 1;
     text-align: center;
-}
-figure img.lazyloaded {
-    width: 100%;
-    /* max-width: 300px; */
-}
-figure a:hover {
-    background-color: unset;
-    padding: unset;
-    border: unset;
-    border-radius: unset;
-}
-figure .reveal {
-    background-color: white;
-    color: grey;
-    font-family: sans-serif;
-    font-size: 8px;
-    padding: 2px 4px;
-    cursor: pointer;
-    border: 1px solid grey;
-    border-radius: 5px;
-    text-align: center;
-}
-figure .reveal:hover {
-    background-color: lightgrey;
-    color: black;
-}
-figure.figure-250 { 
-    width: var(--image-size); 
-    margin: 0 auto 20px auto;
-}
-
-/* Larger than phablet */
-@media (min-width: 550px) {
-    figure.figure-250 { 
-        margin: 0 auto 20px auto;
-    }
-}
-figure {
     font-family: sans-serif;
     font-size: 12px;
     padding: 1rem;
@@ -426,8 +370,8 @@ figure {
     break-inside: avoid;
     -webkit-column-break-inside: avoid; 
 }
-figure.tb {
-    padding: 1rem;
+figure img.lazyloaded {
+    width: 100%;
 }
 figcaption {
     font-family: helvetica,sans-serif;
@@ -484,4 +428,38 @@ figcaption details[open] summary {
 
 #source ol {
     padding: 0 1rem;
+}
+/* Larger than phablet */
+@media (min-width: 550px) {
+    pre {
+        font-size: 8pt;
+    }
+    header {
+        height: 7rem;
+        padding-top: 2.5rem;
+    }
+    #q,
+    #buttons {
+        display: inline-block;
+    }
+    #q {
+        width: calc(var(--form-width) - var(--buttons-width) - 16px);
+    }
+    #buttons {
+        margin-top: 0;
+    }
+    .columns {
+        --column-count: 2 !important;
+    }
+    figure.figure-250 { 
+        margin: 0 auto 20px auto;
+    }
+}
+
+/* Larger than tablet */
+@media (min-width: 768px) {
+    .columns {
+        --column-count: 3 !important;
+        --image-size: 238px;
+    }
 }
