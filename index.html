@@ -35,7 +35,6 @@
                     <div id="q" contentEditable="true" 
                         data-text="Ask me something!" 
                         spellcheck="false"></div>
-                    <input id="q_shadow" type="hidden" value="">
                     <div id="buttons">
                         <button id="reset" type="reset" 
                             aria-label="reset search" data-pop="top" 
@@ -180,6 +179,7 @@
         document.addEventListener(
             'DOMContentLoaded',
             (event) => {
+
                 // Initialize the router
                 const routes = Array.from($$('.route')).map(link => { 
                     return {
@@ -194,37 +194,47 @@
                 });
 
                 const router = new Router(routes);
-
                 onPageLoad(router);
+
                 $('form').addEventListener('submit', submitForm);
 
+                //if enter key is pressed
                 // https://stackoverflow.com/a/33239883
                 $("#q").addEventListener("keydown", function(e){
 
-                    //if enter key is pressed
                     if(e.keyCode== 13 || e.which== 13) { 
                         e.preventDefault();
                         submitForm(e);
                     }
+                    
                 });
 
+                const input = $('#q');
+
+                // if an example query is selected from the list
                 $$('#dropdown li').forEach((item) => {
                     item.addEventListener('click', (e) => {
                         e.preventDefault();
-                        const input = $('#q');
                         input.innerText = e.target.tagName === 'SPAN' 
                             ? e.target.parentNode.innerText
                             : e.target.innerText;
                         $('#example-queries').open = false;
-                        go(input.innerText);
+                        submitForm(e);
                     });
                 });
 
-                
+                // Set the width of the columns
                 $('.columns').style.setProperty(
                     '--container-width', 
                     $('main').clientWidth
                 );
+
+                if (window.location.search) {
+                    const query = window.location.search
+                        .slice(1).split('=').pop();
+                    input.innerText = decodeURIComponent(query);
+                    submitForm();
+                }
             }
         );
     </script>

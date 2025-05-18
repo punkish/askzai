@@ -46,11 +46,11 @@ pre {
 }
 
 /* obscure hides the input element so #q_shadow stands out alone */
-.obscure {
-    /* opacity: 0; */
-    /* z-index: -1; */
+/* .obscure {
+    opacity: 0;
+    z-index: -1;
     display: none;
-}
+} */
 
 /* hidden hides the sections defined by the route */
 .hidden {

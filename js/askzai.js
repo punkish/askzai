@@ -76,20 +76,24 @@ async function toJSON(body) {
 }
 
 function submitForm(event) {
-    event.preventDefault();
+
+    if (event) {
+        event.preventDefault();
+    }
+    
     const input = $('#q');
-    input.innerText = input.innerText;
     const query = input.innerText;
 
     if (query.length < 3) {
-        tgt.placeholder = "C'mon now, say something!";
-        tgt.classList.add('warning');
+        input.dataset.text = "C'mon now, say something!";
+        input.classList.add('warning');
         setTimeout(() => { 
-            tgt.placeholder = "Ask me something!";
-            tgt.classList.remove('warning');
+            input.dataset.text = "Ask me something!";
+            input.classList.remove('warning');
         }, 2000);
     }
     else {
+        history.pushState("", "", `?heyzai=${query}`);
         go(query);
     }
 }
@@ -166,7 +170,7 @@ function prepareSearchTerms(query) {
     );
 
     let popPopStr = 'data-pop="top" data-pop-no-shadow data-pop-arrow';
-    const outputHTML = words
+    const inputHTML = words
         .map(word => {
             if (uniqWords.includes(word)) {
                 return `<span class="hl">${word}</span>\n`
@@ -183,7 +187,7 @@ function prepareSearchTerms(query) {
         })
         .join(" ");
     
-    return { searchTerms, outputHTML }
+    return { searchTerms, inputHTML }
 }
 
 function stripThink(text) {
@@ -243,10 +247,10 @@ async function go(query) {
         div.innerHTML = "";
     });
     
-    const output = $("#q");
-    const { searchTerms, outputHTML } = prepareSearchTerms(query);
-    output.innerHTML = outputHTML;
-    const url = `${window.uris.zenodeo}/v3/treatments?askzai=${query}`;
+    const input = $("#q");
+    const { searchTerms, inputHTML } = prepareSearchTerms(query);
+    input.innerHTML = inputHTML;
+    const url = `${window.uris.zenodeo}/v3/treatments?heyzai=${query}`;
     const resp = await fetch(url);
     
     //const res = await toJSON(response.body);
@@ -349,24 +353,10 @@ function type({
             drawImage(relatedImages, sourceHTML);
         }
     }, speed)
-    // if (index < (text.length)) {
-    //     container.textContent += text.charAt(index);
-    //     index++;
-    //     setTimeout(() => {
-    //         type(container, text, speed, index, relatedImages, source);
-    //     }, speed);
-
-    //     if (index === (text.length - 1)) {
-    //         drawImage(relatedImages, source);
-    //     }
-    // }
-
 }
 
 function reset() {
-    const input = $("#q");
-    // input.classList.add("empty");
-    input.innerHTML = "";
+    $("#q").innerHTML = "";
 }
 
 function onPageLoad(router) {
