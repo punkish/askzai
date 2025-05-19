@@ -155,9 +155,6 @@ form {
 #q span:not(.hl) {
     color: lightgrey;
 }
-#q span.hl {
-    color: green;
-}
 #buttons {
     border: 1px solid lightgrey;
     border-radius: var(--border-radius);
@@ -265,8 +262,9 @@ form {
 #response {
     font-size: 0.8rem;
 }
-.message {
-    margin: 0;
+span.hl,
+span.res {
+    color: green;
 }
 #answer {
     margin: 2rem 0;
@@ -413,7 +411,6 @@ figcaption details[open] summary {
     overflow: unset;
     white-space: unset;
 }
-
 #source {
     padding: 1rem;
     font-size: 0.8rem;
