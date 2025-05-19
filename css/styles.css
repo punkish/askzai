@@ -71,6 +71,7 @@ header {
 }
 header img {
     cursor: pointer;
+    width: 40px;
 }
 header nav {
     text-align: center;
@@ -436,7 +437,10 @@ figcaption details[open] summary {
     }
     header {
         height: 7rem;
-        padding-top: 2.5rem;
+        padding-top: 1rem;
+    }
+    header img {
+        width: 50px;
     }
     #q,
     #buttons {
