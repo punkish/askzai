@@ -227,13 +227,15 @@ function responsesHTML(searchTerms, count, stored, ttl, cacheHit) {
         str = `<span aria-label="cache hit, stored ${formatDate(storedDate)}, expires in ${formatTime(expires)}" data-html="true" data-pop="top" data-pop-no-shadow data-pop-arrow data-pop-multiline>💥</span>`;
     }
 
+    // return `
+    // <p>Zai says ${str}</p>
+    // <ul>
+    //     <li class="message">Conducted a full-text search for "${literalList(searchTerms)}"</li>
+    //     <li class="message">Found <span class="res">${count}</span> papers</li>
+    //     <li class="message">Using the full text of the <a href="#source-0">top ranked paper</a>, found the following:</li>
+    // </ul>`
     return `
-    <p>Zai says ${str}</p>
-    <ul>
-        <li class="message">Conducted a full-text search for "${literalList(searchTerms)}"</li>
-        <li class="message">Found <span class="res">${count}</span> papers</li>
-        <li class="message">Using the full text of the <a href="#source-0">top ranked paper</a>, found the following:</li>
-    </ul>`
+    <p>A full-text search for "${literalList(searchTerms)}" found <span class="res">${count}</span> papers. Here is the answer derived from the full text of the <a href="#source-0">top ranked paper</a>:  ${str}`
 }
 
 async function go(query) {

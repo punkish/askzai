@@ -25,10 +25,6 @@ a:visited{
 
     /* reset uglyduck setting for a and a:visited */
     color:blue;
-
-    /* Break huge URLs so they don't overflow */
-    /* https://stackoverflow.com/a/52371146/183692 */
-    word-break: break-all;
 }
 a.backhome {
     text-decoration: none;
@@ -156,7 +152,12 @@ form {
     content: ".";
     color: white;
 }
-
+#q span:not(.hl) {
+    color: lightgrey;
+}
+#q span.hl {
+    color: green;
+}
 #buttons {
     border: 1px solid lightgrey;
     border-radius: var(--border-radius);
@@ -261,14 +262,8 @@ form {
 /*-------------------------------*/
 /* start: responses styles       */
 /*-------------------------------*/
-#response ol {
-    padding-left: 1rem;
-}
-.hl {
-    color: green;
-}
-.res {
-    color: green;
+#response {
+    font-size: 0.8rem;
 }
 .message {
     margin: 0;
@@ -423,10 +418,16 @@ figcaption details[open] summary {
     padding: 1rem;
     font-size: 0.8rem;
 }
-
 #source ol {
     padding: 0 1rem;
 }
+#source a {
+    
+    /* Break huge URLs so they don't overflow */
+    /* https://stackoverflow.com/a/52371146/183692 */
+    word-break: break-all;
+}
+
 /* Larger than phablet */
 @media (min-width: 550px) {
     pre {
