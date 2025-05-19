@@ -25,6 +25,10 @@ a:visited{
 
     /* reset uglyduck setting for a and a:visited */
     color:blue;
+
+    /* Break huge URLs so they don't overflow */
+    /* https://stackoverflow.com/a/52371146/183692 */
+    word-break: break-all;
 }
 a.backhome {
     text-decoration: none;
@@ -44,13 +48,6 @@ pre {
     display: inline-block;
     padding: 0.5rem;
 }
-
-/* obscure hides the input element so #q_shadow stands out alone */
-/* .obscure {
-    opacity: 0;
-    z-index: -1;
-    display: none;
-} */
 
 /* hidden hides the sections defined by the route */
 .hidden {
