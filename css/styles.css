@@ -155,6 +155,9 @@ form {
 #q span:not(.hl) {
     color: lightgrey;
 }
+span.stopword {
+    color: lightgrey;
+}
 #buttons {
     border: 1px solid lightgrey;
     border-radius: var(--border-radius);
