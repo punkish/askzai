@@ -288,8 +288,8 @@ async function go(query, refreshCache) {
 
         if (records[0].images && records[0].images.length) {
             imageMsg = records[0].images.length > 1
-                ? 'Here is a related image\n\n'
-                : 'Here are a few related images\n\n';
+                ? 'Here are a few related images\n\n'
+                : 'Here is a related image\n\n';
         }
 
         const conclusion = `${answer} ${imageMsg}`;
