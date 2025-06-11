@@ -447,9 +447,10 @@ function type2({
 function type({
     container, 
     text, 
-    speed = 5, 
+    typingSpeed = 5, 
     index = 0, 
-    cb
+    cb,
+    cbDelay = 1000
 }) {
     const typewriterInterval = setInterval(() => {
 
@@ -463,9 +464,9 @@ function type({
             // Finished typing current species, 
             // wait a bit then start erasing
             clearInterval(typewriterInterval);
-            setTimeout(() => cb(), 2000);
+            setTimeout(() => cb(), cbDelay);
         }
-    }, speed);
+    }, typingSpeed);
     
 }
 
