@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,7 +12,6 @@
     <link rel="icon" type="image/png" sizes="32x32" href="img/icons/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="img/icons/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
-    <link rel="stylesheet" href="css/uglyduck.css">
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/pop-pop.min.css">
 </head>
@@ -29,36 +28,49 @@
     </header>
     <main>
         <section id="index">
-            <form>
-                <div id="form-wrapper">
-                    <div id="q" contentEditable="true" 
-                        data-text="Ask me something!" 
-                        spellcheck="false"></div>
-                    <div id="buttons">
-                        <button id="reset" type="reset" 
-                            aria-label="reset search" data-pop="top" 
-                            data-pop-no-shadow data-pop-arrow>&#8855;</button>
-                        <button id="go" type="submit">→</button> 
+            <form id="speciesForm">
+                <div class="input-container">
+                    <div id="q" 
+                        class="editable-input" 
+                        contenteditable="true"
+                        spellcheck="false"
+                        role="textbox"
+                        aria-label="Description input field"></div>
+                    <div id="placeholder-overlay" class="placeholder-overlay">
+                        Ask me something
                     </div>
+                    <div id="suggestions" 
+                        class="suggestions" 
+                        role="listbox" 
+                        aria-label="Species suggestions"></div>
                 </div>
-                <details id="example-queries">
-                    <summary>example queries</summary>
-                    <div>
-                        <p>Keep the queries short, no more than 3-5 words long. Focus on a single task and a single species, and <i>include</i> the <span class="species-name">species name</span> in the query. This allows a more focused context to be presented to the LLM. Here are a few examples to get you started:</p>
-                        <ul id="dropdown">
-                            <li>What is <span class="species-name">Saigona baiseensis</span>?</li>
-                            <li>Describe <span class="species-name">Saigona sinicola</span></li>
-                            <li>Describe <span class="species-name">Carvalhoma malcolmae</span></li>
-                            <li>Does <span class="species-name">Rhinolophus sinicus</span> live in caves?</li>
-                            <li>Where does <span class="species-name">Laephotis botswanae</span> roost?</li>
-                            <li>What distinguishes <span class="species-name">Choanolaimus sparsiporus</span>?</li>
-                            <li>What is the etymology of <span class="species-name">Gammanema lunatum</span>?</li>
-                            <li>Describe <span class="species-name">Amnestus sinuosus</span></li>
-                            <li>What distinguishes Cynodon gibbus from other cofamilial genera?</li>
-                        </ul>
-                    </div>
-                </details>
+                <div id="buttons">
+                    <button 
+                        id="reset" 
+                        type="reset" 
+                        aria-label="reset search" 
+                        data-pop="top" 
+                        data-pop-no-shadow 
+                        data-pop-arrow>&#8855;</button>
+                    <button id="go" type="submit">→</button> 
+                </div>
             </form>
+                
+            <div class="hint">
+                💡 <b>Tip:</b> Check out <a href="#showExamples">example queries</a> or start typing "describe" followed by a species name to see suggestions!
+            </div>
+            
+            <div id="example-queries" class="is-hidden">
+                <p>Keep the queries short, no more than 3-5 words long. Focus on a single task and a single species, and <i>include</i> the <span class="speciesName">species name</span> in the query. This allows a more focused context to be presented to the LLM. Here are a few examples to get you started:</p>
+                <ul id="dropdown">
+                    <li>Does <span class="speciesName">Rhinolophus sinicus</span> live in caves?</li>
+                    <li>Where does <span class="speciesName">Laephotis botswanae</span> roost?</li>
+                    <li>What distinguishes <span class="speciesName">Choanolaimus sparsiporus</span>?</li>
+                    <li>What is the etymology of <span class="speciesName">Gammanema lunatum</span>?</li>
+                    <li>What distinguishes Cynodon gibbus from other cofamilial genera?</li>
+                    <li>How is <span class="speciesName">Leprosoma olcesii</span> different from other species of this genus?</li>
+                </ul>
+            </div>
 
             <div id="responses">
                 <div id="response"></div>
@@ -67,8 +79,8 @@
                 <div id="source"></div>
             </div>
         </section>
-        
-        <section id="about" class="hidden">
+
+        <section id="about" class="is-hidden">
             <a class="route backhome" href="/index.html">←</a>
             <h2>About</h2>
 
@@ -81,7 +93,7 @@
             <p>Zai is a Plazi production.</p>
         </section>
 
-        <section id="semantic-cache" class="hidden">
+        <section id="semantic-cache" class="is-hidden">
             <a class="route backhome" href="/index.html">←</a>
             <h2>Semantic Cache</h2>
             <p>We use the <a href="https://huggingface.co/Supabase/gte-small" target="_blank">Supabase/gte-small</a> model for generating vector embeddings of queries.</p>
@@ -124,7 +136,7 @@
             </pre>
         </section>
 
-        <section id="how-this-works" class="hidden">
+        <section id="how-this-works" class="is-hidden">
             <a class="route backhome" href="/index.html">←</a>
             <h2>How this works</h2>
             <pre>
@@ -174,76 +186,286 @@ asks            └───────────┘
         <p>Published under the <a href="https://creativecommons.org/publicdomain/zero/1.0/legalcode">CC0 public domain dedication</a></p>
     </footer>
     <script src="js/lazysizes.min.js"></script>
+    <script src="http://chancejs.com/chance.min.js"></script>
     <script type="module">
-        import { $, $$ } from './js/utils.js';
-        import { Router, reroute } from './js/router.js';   
         import { 
-            onPageLoad, submitForm, go, reset, tweakUrl 
-        } from './js/askzai.js';
+            $, 
+            $$, 
+            getInputText, 
+            moveCursorToEnd, 
+            toggleVisibility 
+        } from './js/utils.js';
+        import { Router, reroute } from './js/router.js';
+        import SpeciesAutosuggest from './js/autosuggest.js';
+        import { getSpecies, go, reset, tweakUrl, hidePlaceholder, showPlaceholder, type } from './js/askzai.js';
 
         tweakUrl(window.location.href);
 
-        document.addEventListener(
-            'DOMContentLoaded',
-            (event) => {
+        const placeholderOverlay = $('.placeholder-overlay');
+        const input = $('#q');
+        const id = $('#binomen_id');
+        
+        // Set the width of the columns
+        $('.columns').style.setProperty(
+            '--container-width', 
+            `${Zai.bodyWidth}px`
+        );
 
-                // Initialize the router
-                const routes = Array.from($$('.route')).map(link => { 
-                    return {
-                        link, 
-                        path: link.getAttribute('href'),
-                        component: () => reroute(
-                            link.getAttribute('href')
-                                .replace('/', '')
-                                .replace('.html', '')
-                        )
-                    }
-                });
+        if (Zai.isWideScreen) {
+            placeholderOverlay.innerHTML = 'Ask me something, or <span class="placeholder-clickable">I can describe a species</span>';
+        }
+        
+        let typewriterInterval;
+        let isTypewriterActive = false;
+        let currentSpeciesIndex = 0;
+        let currentCharIndex = 0;
+        let currentSpecies = '';
 
-                const router = new Router(routes);
-                onPageLoad(router);
+        function stopTypewriter() {
 
-                $('form').addEventListener('submit', submitForm);
+            if (typewriterInterval) {
+                clearInterval(typewriterInterval);
+                typewriterInterval = null;
+            }
 
-                //if enter key is pressed
-                // https://stackoverflow.com/a/33239883
-                $("#q").addEventListener("keydown", function(e){
+            isTypewriterActive = false;
+            
+            // Clear input and set to just "describe "
+            input.innerHTML = 'describe&nbsp;';
+            moveCursorToEnd(input)
+        }
 
-                    if(e.keyCode== 13 || e.which== 13) { 
-                        e.preventDefault();
-                        submitForm(e);
-                    }
+        function startTypewriter() {
+            if (!isTypewriterActive) return;
+            
+            typewriterInterval = setInterval(() => {
+
+                if (currentCharIndex < currentSpecies.length) {
+                    const char = currentSpecies.substring(
+                        0, 
+                        currentCharIndex + 1
+                    );
+                    input.innerHTML = `describe&nbsp;<span class="hl">${char}</span>`;
+                    currentCharIndex++;
+                } 
+                else {
+
+                    // Finished typing current species, 
+                    // wait a bit then start erasing
+                    clearInterval(typewriterInterval);
+                    setTimeout(() => {
+                        if (isTypewriterActive) {
+                            startErasing();
+                        }
+                    }, 2000);
+                }
+            }, 100);
+        }
+        
+        function startErasing() {
+            if (!isTypewriterActive) return;
+            
+            typewriterInterval = setInterval(() => {
+
+                if (currentCharIndex > 0) {
+                    currentCharIndex--;
+                    const char = currentSpecies.substring(0, currentCharIndex);
+                    input.innerHTML = `describe&nbsp;<span class="hl">${char}</span>`;
+                } 
+                else {
+
+                    // Finished erasing, 
+                    // pick a new species and start typing again
+                    clearInterval(typewriterInterval);
+                    setTimeout(() => {
+                        if (isTypewriterActive) {
+
+                            // Pick a new random species 
+                            // (different from current one)
+                            let newIndex;
+                            do {
+                                newIndex = Math.floor(Math.random() * speciesList.length);
+                            } while (newIndex === currentSpeciesIndex && speciesList.length > 1);
+                            
+                            currentSpeciesIndex = newIndex;
+                            currentCharIndex = 0;
+                            currentSpecies = speciesList[currentSpeciesIndex];
+                            startTypewriter();
+                        }
+                    }, 500);
+                }
+            }, 50);
+        }
+
+        //Pre-populated species list
+        const speciesList = [
+            'Panthera leo',
+            'Tyrannosaurus rex',
+            'Quercus alba',
+            'Apis mellifera',
+            'Canis lupus',
+            'Aquila chrysaetos',
+            'Rosa damascena',
+            'Balaenoptera musculus',
+            'Drosophila melanogaster',
+            'Acer saccharum'
+        ];
+        
+
+        // Initialize the autosuggest when DOM is loaded
+        document.addEventListener('DOMContentLoaded', async () => {
+            
+            // const speciesList = await getSpecies();
+            // console.log(speciesList)
+
+            if (Zai.isWideScreen) {
+
+                // Handle placeholder clickable span
+                $('.placeholder-clickable').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    hidePlaceholder();
+                    input.focus();
                     
+                    // Initialize typewriter
+                    if (!isTypewriterActive) {
+                        isTypewriterActive = true;
+                        currentSpeciesIndex = Math.floor(Math.random() * speciesList.length);
+                        currentCharIndex = 0;
+                        currentSpecies = speciesList[currentSpeciesIndex];
+                        
+                        // Start with "describe "
+                        input.innerHTML = 'describe&nbsp;';
+                        startTypewriter();
+                    }
+
+                    moveCursorToEnd(input);
                 });
 
-                const input = $('#q');
-
-                // if an example query is selected from the list
-                $$('#dropdown li').forEach((item) => {
-                    item.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        input.innerText = e.target.tagName === 'SPAN' 
-                            ? e.target.parentNode.innerText
-                            : e.target.innerText;
-                        $('#example-queries').open = false;
-                        submitForm(e);
-                    });
+                // Stop typewriter when user clicks in the field
+                input.addEventListener('click', () => {
+                    if (isTypewriterActive) {
+                        stopTypewriter();
+                    }
+                });
+                
+                // Stop typewriter when user starts typing
+                input.addEventListener('keydown', () => {
+                    if (isTypewriterActive) {
+                        stopTypewriter();
+                    }
                 });
 
-                // Set the width of the columns
-                $('.columns').style.setProperty(
-                    '--container-width', 
-                    $('main').clientWidth + 'px'
+            }
+
+            // Handle input focus and blur
+            input.addEventListener('focus', hidePlaceholder);
+            input.addEventListener('blur', showPlaceholder);
+            input.addEventListener('input', () => {
+                if (input.textContent.trim() !== '') {
+                    hidePlaceholder();
+                } 
+                else {
+                    showPlaceholder();
+                }
+            });
+            
+            // Initialize the router
+            const routes = Array.from($$('.route')).map(link => { 
+                return {
+                    link, 
+                    path: link.getAttribute('href'),
+                    component: () => reroute(
+                        link.getAttribute('href')
+                            .replace('/', '')
+                            .replace('.html', '')
+                    )
+                }
+            });
+
+            const router = new Router(routes);
+            router.listen();
+            
+            input.focus();
+            $('#reset').addEventListener('click', reset);
+
+            $('#go').addEventListener('click', (e) => {
+                e.preventDefault();
+                const query = getInputText(input);
+
+                if (query.length < 3) {
+                    const placeholderOverlay = $('#placeholder-overlay');
+                    const origPlaceHolder = placeholderOverlay.innerHTML;
+                    placeholderOverlay.innerHTML = "C'mon now, ask something!";
+                    placeholderOverlay.classList.add('warning');
+
+                    setTimeout(() => { 
+                        placeholderOverlay.innerHTML = origPlaceHolder;
+                        placeholderOverlay.classList.remove('warning');
+                    }, 3000);
+                }
+                else {
+                    go(query);
+                }
+                
+            });
+
+            // if an example query is selected from the list
+            $$('#dropdown li').forEach((item) => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    input.innerText = e.target.tagName === 'SPAN' 
+                        ? e.target.parentNode.innerText
+                        : e.target.innerText;
+                    
+                    toggleVisibility($("#example-queries"));
+                    const query = getInputText(input);
+                    go(query);
+                });
+            });
+
+            $(".hint a").addEventListener('click', (e) => {
+                e.preventDefault();
+                toggleVisibility($("#example-queries"));
+            });
+
+            $('header img').addEventListener('click', () => {
+                $('nav').classList.toggle('fade-in-normal');
+                setTimeout(() => { 
+                    $('nav').classList.remove('fade-in-normal');
+                }, 4000);
+            });
+
+            if (window.location.search) {
+                const searchParams = new URLSearchParams(
+                    decodeURIComponent(window.location.search)
                 );
 
-                if (window.location.search) {
-                    const query = window.location.search
-                        .slice(1).split('=').pop();
-                    input.innerText = decodeURIComponent(query);
-                    submitForm();
+                let refreshCache = false;
+
+                if (searchParams.has('refreshCache')) {
+                    refreshCache = true;
+                    searchParams.delete('refreshCache');
                 }
+
+                let query;
+
+                if (searchParams.has('heyzai')) {
+                    query = searchParams.get('heyzai').toString();
+                }
+
+                go(query, refreshCache);
             }
-        );
+            else {
+                SpeciesAutosuggest.init({
+                    input,
+                    id,
+                    suggestionsContainer: $('#suggestions'),
+                    form: $('#speciesForm'),
+                    getSpecies,
+                    doSomethingWithData: go
+                });
+            }
+        });
     </script>
 </body>
 </html>

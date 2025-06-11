@@ -61,12 +61,12 @@ export function reroute(page) {
     const sections = $$('section');
 
     sections.forEach(section => {
-        section.classList.add('hidden');
+        section.classList.add('is-hidden');
     });
 
     const homeSection = $(`section#${page}`);
 
     if (homeSection) {
-        homeSection.classList.remove('hidden');
+        homeSection.classList.remove('is-hidden');
     }
 }

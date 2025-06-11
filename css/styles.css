@@ -8,54 +8,43 @@
  * viewport height. See 
  * https://developer.mozilla.org/en-US/docs/Web/CSS/Layout_cookbook/Sticky_footers
  */
+
+* {
+    box-sizing: border-box;
+}
+
 html {
     height: 100%;
 }
+
 body {
+    --body-padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    margin: 0 auto;
+    padding: var(--body-padding);
+    background-color: #f8f9fa;
     min-height: 100vh;
     display: grid;
     grid-template-rows: auto 1fr auto;
-
-    /* override uglyduck setting */
     --max-body-width: 960px;
-    max-width: var(--max-body-width)
+    max-width: var(--max-body-width);
 }
-a,
-a:visited{
 
-    /* reset uglyduck setting for a and a:visited */
-    color:blue;
+.warning {
+    color: orange !important;
+    font-size: 0.8rem;
 }
-a.backhome {
-    text-decoration: none;
-    border: 1px solid grey;
-    padding: .1rem .5rem;
-    border-radius: 5px;
-    background-color: #f5f5f5;
-    color: black;
-    font-weight: 800;
-}
-a.backhome:hover {
-    background-color: grey;
-    color: white;
-}
+
 pre {
-    font-size: 0.55rem;
+    font-size: 0.5rem;
     display: inline-block;
     padding: 0.5rem;
 }
 
-/* hidden hides the sections defined by the route */
-.hidden {
-    display: none;
-}
-
-.warning {
-    color: orange;
-}
-
 /*-------------------------------*/
 /* end: document level styles    */
+/*-------------------------------*/
+
 /*-------------------------------*/
 /* header styles                 */
 /*-------------------------------*/
@@ -72,7 +61,6 @@ header nav {
     margin-top: -1.25rem;
 }
 header nav ul {
-
     /* left padding ensures that "about" is aligned with the logo above */
     padding-left: 17px;
 }
@@ -97,6 +85,8 @@ header nav ul li {
 /*-------------------------------*/
 /* end: header styles            */
 /*-------------------------------*/
+
+/*-------------------------------*/
 /* start: footer styles          */
 /*-------------------------------*/
 footer {
@@ -109,10 +99,11 @@ footer {
 /*-------------------------------*/
 /* end: footer styles            */
 /*-------------------------------*/
+
+/*-------------------------------*/
 /* start: form styles            */
 /*-------------------------------*/
 form {
-
     /* 
      * forms don't have a default width or height, and 
      * instead, they take the dimensions of their content.
@@ -125,51 +116,154 @@ form {
     --buttons-width: calc(var(--reset-button-width) + var(--go-button-width));
     --button-height: 36px;
     --border-radius: 5px;
-}
-#form-wrapper {
-    border: none;
+    margin-bottom: 20px;
     position: relative;
-}
-#q {
-    width: var(--form-width);
-    position: relative;
-    border-bottom: 1px dotted black;
-    min-height: var(--button-height);
-    padding: 2px 10px;
-    font-family: sans-serif;
-}
-#q:focus {
-    outline: none;
 }
 
-/* Add a placeholder to the div contendEditable */
-/* https://stackoverflow.com/a/20300212 */
-#q:empty:not(:focus):before {
-    content: attr(data-text);
-    color: lightgrey;
+.input-container {
+    position: relative;
+    display: inline-block;
+    width: calc(100% - var(--buttons-width) - 11px);
+    vertical-align: top;
 }
-#q:empty:before {
-    content: ".";
+
+.editable-input {
+    width: 100%;
+    padding: 1px 10px;
+    min-height: calc(var(--button-height) + 4px);
+    border: 2px solid #e1e8ed;
+    border-radius: 8px;
+    font-size: 1rem;
+    line-height: 2;
+    background-color: #fff;
+    transition: border-color 0.2s ease;
+    outline: none;
+    /* overflow-y: auto; */
+}
+
+.editable-input:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.editable-input:empty::before {
+    content: attr(data-placeholder);
+    color: #95a5a6;
+    font-style: italic;
+}
+
+.placeholder-clickable {
+    cursor: pointer;
+    text-decoration: underline;
+    color: #3498db;
+}
+
+.placeholder-clickable:hover {
+    color: #2980b9;
+}
+
+.placeholder-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 12px;
+    color: #95a5a6;
+    pointer-events: none;
+    align-items: center;
+    z-index: 1;
+}
+
+.placeholder-overlay .placeholder-clickable {
+    pointer-events: all;
+}
+
+.placeholder-overlay.hidden {
+    display: none;
+}
+
+.suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #e1e8ed;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+}
+
+.suggestion-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid #f8f9fa;
+    transition: background-color 0.2s ease;
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.suggestion-item:hover,
+.suggestion-item.highlighted {
+    background-color: #3498db;
     color: white;
 }
+
+.species-name {
+    font-weight: 400;
+    font-size: 12px;
+    display: block;
+}
+
+.species-type {
+    font-size: 12px;
+    opacity: 0.8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.hint {
+    margin-top: 12px;
+    padding: 12px;
+    background-color: #e8f6f3;
+    border-left: 4px solid #1abc9c;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #16a085;
+}
+
 #q span:not(.hl) {
     color: lightgrey;
 }
 span.stopword {
     color: lightgrey;
 }
+span.hl,
+span.res {
+    color: green;
+}
+
+/*-------------------------------*/
+/* start: button styles          */
+/*-------------------------------*/
+
 #buttons {
     border: 1px solid lightgrey;
     border-radius: var(--border-radius);
     display: inline-block;
-    padding: 1px;
-    margin-top: 0.25rem;
+    vertical-align: top;
+    margin-top: 0;
+    cursor: pointer;
     position: relative;
 }
 #reset,
 #go {
     border: 1px solid lightslategrey;
-    cursor: pointer;
     background-color: lightgrey;
 }
 #reset {
@@ -211,11 +305,12 @@ span.stopword {
     border-radius: 50%;
     animation: button-loading-spinner 1s ease infinite;
     opacity: 0.75;
-
 }
 
 /*-------------------------------*/
-/* end: form styles              */
+/* end: button styles            */
+/*-------------------------------*/
+
 /*-------------------------------*/
 /* start: examples styles        */
 /*-------------------------------*/
@@ -224,22 +319,24 @@ span.stopword {
     font-size: 10pt;
     width: 288px;
 }
-#example-queries summary {
-    cursor: pointer;
+
+.is-hidden {
+    transition: 0.6s;
+    opacity: 0;
+    visibility: hidden;
+    display: none;
 }
-#example-queries .species-name {
+.is-visible {
+    transition: 0.6s;
+    opacity: 1;
+    visibility: visible;
+    display: block;
+}
+
+#example-queries .speciesName {
     text-decoration: underline wavy green;
 }
 
-/* How To Add CSS3 Transition With HTML5 details/summary tag reveal? */
-/* https://stackoverflow.com/a/38215801 */
-#example-queries[open] summary ~ * {
-    animation: sweep 1s ease-in-out;
-}
-@keyframes sweep {
-    0% {opacity: 0; transform: translateY(-10px)}
-  100% {opacity: 1; transform: translateY(0)}
-}
 #dropdown {
     padding: 0;
 }
@@ -249,8 +346,6 @@ span.stopword {
     cursor: pointer;
     list-style: none;
     transition: opacity 0.5s ease-in-out 0.1s;
-}
-#dropdown li {
     border-bottom: 1px dotted black;
 }
 #dropdown li:hover {
@@ -260,17 +355,15 @@ span.stopword {
 /*-------------------------------*/
 /* end: examples styles          */
 /*-------------------------------*/
+
+/*-------------------------------*/
 /* start: responses styles       */
 /*-------------------------------*/
-#response {
-    font-size: 0.8rem;
-}
-span.hl,
-span.res {
-    color: green;
-}
+#response,
 #answer {
-    margin: 2rem 0;
+    margin: 1rem 0;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    line-height: 1.6;
 }
 
 @keyframes typing { from { width: 0; } to { width: 8ch; } }
@@ -288,6 +381,8 @@ span.res {
 }
 /*-------------------------------*/
 /* end: responses styles         */
+/*-------------------------------*/
+
 /*-------------------------------*/
 /* start: columns styles         */
 /*-------------------------------*/
@@ -316,7 +411,7 @@ span.res {
 */
 
 .columns {
-    --container-width: 290px;
+    --container-width: 280px;
     --column-count: 1;
     --column-gap: 30px;
     --column-width: calc( 
@@ -329,40 +424,28 @@ span.res {
     margin: 0 auto;
 
     column-count: var(--column-count);
-    -webkit-column-count: var(--column-count);
-    -moz-column-count: var(--column-count);
-    
     column-gap: var(--column-gap);
-    -moz-column-gap: var(--column-gap);
-    -webkit-column-gap: var(--column-gap);
 
     page-break-inside: avoid;
     break-inside: avoid;
-    -webkit-column-break-inside: avoid;
 }
+
 figure {
     position: relative;
     height: auto;
-    border: 1px solid #444;
-    margin: 0;
-    padding: 0;
+    margin: 0 0 10px 0;
+    padding: 1rem;
     opacity: 1;
     text-align: center;
     font-family: sans-serif;
     font-size: 12px;
-    padding: 1rem;
-    margin-bottom: 10px;
     border: 1px solid #ccc;
     box-shadow: 1px 1px 10px 1px #dbd9d5;
     
     /* avoid figures splitting across columns */
     /* see https://stackoverflow.com/a/17415553/183692 */
     overflow: hidden; /* fix for Firefox */
-    break-inside: avoid-column;
-    -webkit-column-break-inside: avoid;
-    page-break-inside: avoid;
     break-inside: avoid;
-    -webkit-column-break-inside: avoid; 
 }
 figure img.lazyloaded {
     width: 100%;
@@ -373,7 +456,6 @@ figcaption {
     text-align: left;
     cursor: pointer;
     line-height: 1.1rem;
-    
 }
 figcaption div.closed {
     height: 0;
@@ -422,7 +504,6 @@ figcaption details[open] summary {
     padding: 0 1rem;
 }
 #source a {
-    
     /* Break huge URLs so they don't overflow */
     /* https://stackoverflow.com/a/52371146/183692 */
     word-break: break-all;
@@ -440,12 +521,12 @@ figcaption details[open] summary {
     header img {
         width: 50px;
     }
+    .warning {
+        font-size: 1rem;
+    }
     #q,
     #buttons {
         display: inline-block;
-    }
-    #q {
-        width: calc(var(--form-width) - var(--buttons-width) - 16px);
     }
     #buttons {
         margin-top: 0;

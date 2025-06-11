@@ -40,17 +40,19 @@ function formatDate(d) {
 }
 
 function literalList(arr) {
+    function wrap(item) {
+        return `<span class="hl">${item}</span>`;
+    }
+    
+    let str = `${arr.slice(0, arr.length - 1 || 1)
+        .map(item => wrap(item))
+        .join(', ')}`;
 
-    if (arr.length === 1) {
-        return `<span class="hl">${arr[0]}</span>`;
+    if (arr.length > 1) {
+        str += ` and ${wrap(arr[arr.length - 1])}`;
     }
-    else if (arr.length === 2) {
-        return `<span class="hl">${arr[0]}</span> and <span class="hl">${arr[1]}</span>`;
-    }
-    else {
-        return ` <span class="hl">${arr.slice(0, arr.length - 1).join(`</span>, <span class="hl">`)}</span>, and <span class="hl">${arr[arr.length - 1]}</span>`;
-    }
-
+    
+    return str
 }
 
 async function toJSON(body) {
@@ -75,29 +77,6 @@ async function toJSON(body) {
     return read();
 }
 
-function submitForm(event) {
-
-    if (event) {
-        event.preventDefault();
-    }
-    
-    const input = $('#q');
-    const query = input.innerText;
-
-    if (query.length < 3) {
-        input.dataset.text = "C'mon now, say something!";
-        input.classList.add('warning');
-        setTimeout(() => { 
-            input.dataset.text = "Ask me something!";
-            input.classList.remove('warning');
-        }, 2000);
-    }
-    else {
-        history.pushState("", "", `?heyzai=${query}`);
-        go(query);
-    }
-}
-
 function imageUrl(httpUri) {
     const uris = {};
 
@@ -116,13 +95,13 @@ function imageUrl(httpUri) {
 
             // record.uri = `${globals.zenodoUri}/${id}/thumb${figureSize}`;
             // https://zenodo.org/api/iiif/record:6758444:figure.png/full/250,/0/default.png
-            uris.src250 = `${window.uris.zenodo}/api/iiif/record:${id}:figure.png/full/250,/0/default.jpg`;
-            //uris.src250 = `${window.uris.zenodo}/${id}/thumb${250}`;
+            uris.src250 = `${Zai.uris.zenodo}/api/iiif/record:${id}:figure.png/full/250,/0/default.jpg`;
+            //uris.src250 = `${Zai.uris.zenodo}/${id}/thumb${250}`;
 
             // record.fullImage = `${globals.zenodoUri}/${id}/thumb1200`;
             // https://zenodo.org/api/iiif/record:6758444:figure.png/full/1200,/0/default.png
-            uris.src1200 = `${window.uris.zenodo}/api/iiif/record:${id}:figure.png/full/^1200,/0/default.jpg`;
-            //uris.src1200 = `${window.uris.zenodo}/${id}/thumb1200`;
+            uris.src1200 = `${Zai.uris.zenodo}/api/iiif/record:${id}:figure.png/full/^1200,/0/default.jpg`;
+            //uris.src1200 = `${Zai.uris.zenodo}/${id}/thumb1200`;
         }
     }
 
@@ -136,6 +115,14 @@ function imageUrl(httpUri) {
 }
 
 function prepareSearchTerms(query) {
+
+    let isQuestion = false;
+
+    if (query.slice(-1) === '?') {
+        isQuestion = true;
+        query = query.slice(0, -1);
+    }
+
     const words = query.split(/\s+/);
 
     // include only words…
@@ -170,22 +157,26 @@ function prepareSearchTerms(query) {
     );
 
     let popPopStr = 'data-pop="top" data-pop-no-shadow data-pop-arrow';
-    const inputHTML = words
+    let inputHTML = words
         .map(word => {
             if (uniqWords.includes(word)) {
-                return `<span class="hl">${word}</span>\n`
+                return `<span class="hl">${word}</span>`
             }
             else if (/^-/.test(word)) {
-                return `<span aria-label="word removed from search" ${popPopStr}>${word}</span>\n`
+                return `<span aria-label="word removed from search" ${popPopStr}>${word}</span>`
             }
             else if (/^\+/.test(word)) {
-                return `<span class="hl" aria-label="stopword included in search" ${popPopStr}>${word}</span>\n`
+                return `<span class="hl" aria-label="stopword included in search" ${popPopStr}>${word}</span>`
             }
             else {
-                return `<span aria-label="stopword removed from search" ${popPopStr}>${word}</span>\n`
+                return `<span aria-label="stopword removed from search" ${popPopStr}>${word}</span>`
             }
         })
         .join(" ");
+
+    if (isQuestion) {
+        inputHTML += '?';
+    }
     
     return { searchTerms, inputHTML }
 }
@@ -211,34 +202,38 @@ function stripThink(text) {
     
 }
 
-function sourcesHTML({ sourceName, sources }) {
-    const srcList = sources.map((s, i) => `<li id="source-${i + 1}" class="sources"><a href="${window.uris.tb}/${s.treatmentId}" target="_blank">${s.treatmentTitle}</a> from <cite>${s.articleAuthor}. ${s.publicationDate}. ${s.articleTitle}, DOI: <a href="https://doi.org/${s.articleDOI}">${s.articleDOI}</a></cite></li>`);
+function sourcesHTML(records) {
+    const srcList = records.map((s, i) => {
+        let cite = `<li id="source-${i + 1}" class="sources"><a href="${Zai.uris.tb}/${s.treatmentId}" target="_blank">${s.treatmentTitle}</a> from <cite>${s.articleAuthor} `;
+        
+        if (s.publicationDate) {
+            cite += `${s.publicationDate}. `;
+        }
 
+        if (s.articleTitle) {
+            cite += `${s.articleTitle}`;
+        }
+
+        if (s.articleDOI) {
+            cite += `, DOI: <a href="https://doi.org/${s.articleDOI}">${s.articleDOI}</a>`;
+        }
+
+        cite += `</cite></li>`;
+        return cite;
+    }).join('\n');
+
+    const sourceName = records.length > 1 ? 'treatments' : 'treatment';
     return `Answer generated based on the following ${sourceName}:
     <ol>${srcList}</ol>`;
 }
 
-function responsesHTML(searchTerms, count, stored, ttl, cacheHit) {
-    let str = '';
-
-    if (cacheHit) {
-        const storedDate = new Date(stored);
-        const expires = new Date(stored + ttl) - new Date();
-        str = `<span aria-label="cache hit, stored ${formatDate(storedDate)}, expires in ${formatTime(expires)}" data-html="true" data-pop="top" data-pop-no-shadow data-pop-arrow data-pop-multiline>💥</span>`;
-    }
-
-    // return `
-    // <p>Zai says ${str}</p>
-    // <ul>
-    //     <li class="message">Conducted a full-text search for "${literalList(searchTerms)}"</li>
-    //     <li class="message">Found <span class="res">${count}</span> papers</li>
-    //     <li class="message">Using the full text of the <a href="#source-0">top ranked paper</a>, found the following:</li>
-    // </ul>`
-    return `
-    <p>A full-text search for "${literalList(searchTerms)}" found <span class="res">${count}</span> papers. Here is the answer derived from the full text of the <a href="#source-0">top ranked paper</a>:  ${str}`
+function isQueryForSummary(query) {
+    const words = query.toLowerCase().trim().split(/\s+/);
+    return words.length >= 1 && words[0] === 'describe';
 }
 
-async function go(query) {
+async function go(query, refreshCache) {
+    hidePlaceholder();
     const goButton = $("#go");
     goButton.classList.add("button--loading");
 
@@ -248,46 +243,133 @@ async function go(query) {
         div.textContent = "";
         div.innerHTML = "";
     });
-    
-    const input = $("#q");
+
     const { searchTerms, inputHTML } = prepareSearchTerms(query);
+    const input = $("#q");
     input.innerHTML = inputHTML;
-    const url = `${window.uris.zenodeo}/v3/treatments?heyzai=${query}`;
+
+    const queryString = `heyzai=${encodeURIComponent(query)}`;
+    history.pushState("", "", `?${queryString}`);
+    let url = `${Zai.uris.zenodeo}/v3/treatments?${queryString}`;
+
+    if (refreshCache) {
+        url += `&refreshCache=true`;
+    }
+
     const resp = await fetch(url);
+
+    const qords = query.split(' ');
+    let binomen;
+
+    if (qords[0].toLowerCase() === 'describe') {
+        binomen = qords.slice(1).join(' ');
+    }
     
     //const res = await toJSON(response.body);
 
     if (resp.ok) {
-        const { query, response, stored, ttl, isSemantic, cacheHit } = await resp.json();
-        const { fts, answer } = response;
-        const { count, sources } = fts;
+        const { 
+            query, 
+            response, 
+            stored, 
+            ttl, 
+            isSemantic, 
+            cacheHit 
+        } = await resp.json();
+        
+        const { count, records, answer } = response;
+        const niceCount = niceNumbers(count);
 
-        const responseContainer = $("#response");
-        responseContainer.innerHTML = responsesHTML(searchTerms, count, stored, ttl, cacheHit);
+        $("#response").innerHTML = isQueryForSummary(query)
+            ? responseForSummary({ count: niceCount, binomen, records })
+            : responseForLLM({ searchTerms, count: niceCount, stored, ttl, cacheHit });
 
-        let { think, conclusion } = stripThink(answer);
+        let imageMsg = '';
 
-        if (sources[0].images.length == 1) {
-            conclusion = `${conclusion} Here is a related image\n`
+        if (records[0].images && records[0].images.length) {
+            imageMsg = records[0].images.length > 1
+                ? 'Here is a related image\n\n'
+                : 'Here are a few related images\n\n';
         }
-        else if (sources[0].images.length > 1) {
-            conclusion = `${conclusion} Here are a few related images\n\n`;
-        }
+
+        const conclusion = `${answer} ${imageMsg}`;
 
         type({
-            answerContainer: $("#answer"), 
-            conclusion, 
-            relatedImages: sources[0].images, 
-            sourceHTML: sourcesHTML({
-                sourceName: sources.length > 1 ? 'treatments' : 'treatment',
-                sources
+            container: $("#answer"), 
+            text: conclusion, 
+            cb: () => drawImage({
+                relatedImages: records[0].images, 
+                sourceHTML: sourcesHTML(records)
             })
         });
-        goButton.classList.remove("button--loading");
     }
+
+    goButton.classList.remove("button--loading");
 }
 
-function drawImage(relatedImages, sourceHTML) {
+function niceNumbers(num) {
+    
+    if (num > 9) return num;
+    const numbers = {
+        '1': 'one', '2': 'two', '3': 'three', '4': 'four', '5': 'five', 
+        '6': 'six', '7': 'seven', '8': 'eight', '9': 'nine'
+    }
+
+    return numbers[String(num)]
+}
+
+function responseForLLM({ searchTerms, count, stored, ttl, cacheHit }) {
+    let str;
+    
+    if (count === 'one') {
+        str = `A full-text search for "${literalList(searchTerms)}" found <a href="#source-0">${count} paper</a>. Here is the answer derived from its full text:`;
+    }
+    else {
+        str = `A full-text search for "${literalList(searchTerms)}" found <span class="res">${count}</span> papers. Here is the answer derived from the full text of the <a href="#source-0">top ranked paper</a>:`;
+    }
+
+    if (cacheHit) {
+        const storedDate = new Date(stored);
+        const expires = new Date(stored + ttl) - new Date();
+
+        const cacheHitStr = `<span aria-label="cache hit, stored ${formatDate(storedDate)}, expires in ${formatTime(expires)}" data-html="true" data-pop="top" data-pop-no-shadow data-pop-arrow data-pop-multiline>💥</span>`;
+
+        str += ` ${cacheHitStr}`;
+    }
+
+    return `<p>${str}</p>`
+}
+
+function responseForSummary({ count, binomen, records }) {
+    let str;
+    
+    if (count === 'one') {
+        str = `Found <span class="res">${count}</span> treatment of the binomen <span class="res">${binomen}</span>. `;
+    }
+    else {
+        str = `Found <span class="res">${count}</span> treatments of the binomen <span class="res">${binomen}</span>. `;
+    }
+
+    const i = records.findIndex(e => e.status === 'sp. nov.');
+    const source = i > -1 ? records[i] : records[0];
+
+    if (i > -1) {
+        str += `Here is the summary derived from the full text of the <a href="#source-0">treatment</a>`;
+    }
+    else {
+        str += `Here is the summary derived from the full text of the first <a href="#source-0">treatment</a>`;
+    }
+
+    if (source.status) {
+        str += ` with a status <span class="res">${source.status}</span>`
+    }
+
+    str += ':';
+    
+    return `<p>${str}</p>`;
+}
+
+function drawImage({ relatedImages, sourceHTML }) {
     if (relatedImages) {
         const relatedImagesContainer = $("#relatedImages");
 
@@ -297,8 +379,11 @@ function drawImage(relatedImages, sourceHTML) {
         if (relatedImages.length === 1) {
             relatedImagesContainer.classList.remove("columns");
             relatedImagesContainer.classList.add("column");
-            defaultImgSrc = '1200';
-            defaultImgWidth = 928;
+
+            if (Zai.isWideScreen) {
+                defaultImgSrc = '1200';
+                defaultImgWidth = 928;
+            }
 
         }
         else {
@@ -329,36 +414,81 @@ function drawImage(relatedImages, sourceHTML) {
     sourceContainer.innerHTML = sourceHTML;
 }
 
-function type({
-    answerContainer, 
-    conclusion, 
+function type2({
+    container, 
+    text, 
     speed = 5, 
     index = 0, 
-    relatedImages, 
-    sourceHTML
+    cb
 }) {
-    answerContainer.textContent += conclusion.charAt(index);
+    container.innerHTML += text.charAt(index);
 
     setTimeout(() => {
         index++;
 
-        if (index < (conclusion.length)) {
+        if (index < text.length) {
             type({
-                answerContainer, 
-                conclusion, 
+                container, 
+                text, 
                 index,
-                relatedImages, 
-                sourceHTML
+                cb
             });
         }
         else {
-            drawImage(relatedImages, sourceHTML);
+
+            if (cb) {
+                cb();
+            }
+
         }
     }, speed)
 }
 
-function reset() {
-    $("#q").innerHTML = "";
+function type({
+    container, 
+    text, 
+    speed = 5, 
+    index = 0, 
+    cb
+}) {
+    const typewriterInterval = setInterval(() => {
+
+        if (index < text.length) {
+            const char = text.substring(0, index + 1);
+            container.innerHTML = char;
+            index++;
+        } 
+        else {
+
+            // Finished typing current species, 
+            // wait a bit then start erasing
+            clearInterval(typewriterInterval);
+            setTimeout(() => cb(), 2000);
+        }
+    }, speed);
+    
+}
+
+function hidePlaceholder() {
+    const placeholderOverlay = $('#placeholder-overlay');
+    placeholderOverlay.classList.add('hidden');
+}
+
+function showPlaceholder() {
+    const input = $("#q");
+    const placeholderOverlay = $('#placeholder-overlay');
+
+    if (input.textContent.trim() === '') {
+        placeholderOverlay.classList.remove('hidden');
+    }
+}
+
+function reset(e) {
+    e.preventDefault();
+    const input = $("#q");
+    input.innerHTML = "";
+    showPlaceholder();
+    input.focus();
 }
 
 function onPageLoad(router) {
@@ -378,18 +508,73 @@ function onPageLoad(router) {
  *
  */
 function tweakUrl(loc) {
-    window.uris = {
+    if (!window.Zai) {
+        window.Zai = {};
+    }
+    
+    Zai.uris = {
         zenodo: 'https://zenodo.org',
         zenodeo: 'http://localhost:3010',
         tb: 'https://tb.plazi.org/GgServer/html'
     };
 
     if (loc.indexOf('askzai.net') > -1) {
-        window.uris.zenodeo = 'https://test.zenodeo.org';
+        Zai.uris.zenodeo = 'https://test.zenodeo.org';
     }
     else if (loc.indexOf('lucknow.local') > -1) {
-        window.zenodeo = 'http://lucknow.local:3010';
+        Zai.uris.zenodeo = 'http://lucknow.local:3010';
     }
+
+    Zai.bodyWidth = $('body').clientWidth - 40;
+    Zai.isWideScreen = Zai.bodyWidth > 550 ? true : false;
 }
 
-export { onPageLoad, submitForm, go, reset, tweakUrl }
+function submitForm(input, query) {
+
+    if (query.length < 3) {
+        input.dataset.placeholder = "C'mon now, say something!";
+        input.classList.add('warning');
+
+        setTimeout(() => { 
+            input.dataset.placeholder = "Ask me something!";
+            input.classList.remove('warning');
+        }, 2000);
+    }
+    else {
+        history.pushState("", "", `?heyzai=${query}`);
+        go(query);
+    }
+
+}
+
+async function getSpecies(searchTerm) {
+    let url = `${Zai.uris.zenodeo}/v3/binomens?binomen=`;
+
+    if (searchTerm) {
+        url += `${searchTerm}`;
+    }
+    else {
+        searchTerm = chance.word({ length: 3 })
+        url += `contains(${searchTerm})`;
+    }
+
+    const resp = await fetch(url);
+
+    if (resp.ok) {
+        const { query, response } = await resp.json();
+        const { count, records } = response;
+
+        if (records) {
+            const species = records.map(r => r.binomen);
+            const len = searchTerm.length;
+            return species.filter(binomen => 
+                binomen.toLowerCase().substring(0, len) === searchTerm.     
+                    toLowerCase()
+            ).slice(0, 8);
+        }
+        
+    }
+
+}
+
+export { onPageLoad, go, reset, submitForm, tweakUrl, getSpecies, hidePlaceholder, showPlaceholder, type }
