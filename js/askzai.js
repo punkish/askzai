@@ -232,6 +232,12 @@ function isQueryForSummary(query) {
     return words.length >= 1 && words[0] === 'describe';
 }
 
+function addToHistory(query) {
+    const queryString = `heyzai=${query}`;
+    history.pushState({}, '', `?${queryString}`);
+    return queryString
+}
+
 async function go(query, refreshCache) {
     hidePlaceholder();
     const goButton = $("#go");
@@ -248,8 +254,7 @@ async function go(query, refreshCache) {
     const input = $("#q");
     input.innerHTML = inputHTML;
 
-    const queryString = `heyzai=${encodeURIComponent(query)}`;
-    history.pushState("", "", `?${queryString}`);
+    const queryString = addToHistory(query);
     let url = `${Zai.uris.zenodeo}/v3/treatments?${queryString}`;
 
     if (refreshCache) {
@@ -542,8 +547,8 @@ function submitForm(input, query) {
         }, 2000);
     }
     else {
-        history.pushState("", "", `?heyzai=${query}`);
-        go(query);
+        const queryString = addToHistory(query);
+        go(queryString);
     }
 
 }
