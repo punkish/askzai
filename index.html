@@ -62,14 +62,7 @@
             
             <div id="example-queries" class="is-hidden">
                 <p>Keep the queries short, no more than 3-5 words long. Focus on a single task and a single species, and <i>include</i> the <span class="speciesName">species name</span> in the query. This allows a more focused context to be presented to the LLM. Here are a few examples to get you started:</p>
-                <ul id="dropdown">
-                    <li>Does <span class="speciesName">Rhinolophus sinicus</span> live in caves?</li>
-                    <li>Where does <span class="speciesName">Laephotis botswanae</span> roost?</li>
-                    <li>What distinguishes <span class="speciesName">Choanolaimus sparsiporus</span>?</li>
-                    <li>What is the etymology of <span class="speciesName">Gammanema lunatum</span>?</li>
-                    <li>What distinguishes Cynodon gibbus from other cofamilial genera?</li>
-                    <li>How is <span class="speciesName">Leprosoma olcesii</span> different from other species of this genus?</li>
-                </ul>
+                <ul id="dropdown"></ul>
             </div>
 
             <div id="responses">
@@ -193,7 +186,8 @@ asks            └───────────┘
             $$, 
             getInputText, 
             moveCursorToEnd, 
-            toggleVisibility 
+            toggleVisibility,
+            getSpeciesList
         } from './js/utils.js';
         import { Router, reroute } from './js/router.js';
         import SpeciesAutosuggest from './js/autosuggest.js';
@@ -217,9 +211,9 @@ asks            └───────────┘
         
         let typewriterInterval;
         let isTypewriterActive = false;
-        let currentSpeciesIndex = 0;
-        let currentCharIndex = 0;
-        let currentSpecies = '';
+        // let currentSpeciesIndex = 0;
+        // let currentCharIndex = 0;
+        // let currentSpecies = '';
 
         function stopTypewriter() {
 
@@ -235,7 +229,11 @@ asks            └───────────┘
             moveCursorToEnd(input)
         }
 
-        function startTypewriter() {
+        function startTypewriter(speciesList) {
+            let currentSpeciesIndex = Math.floor(Math.random() * speciesList.length);
+            let currentCharIndex = 0;
+            let currentSpecies = speciesList[currentSpeciesIndex];
+
             if (!isTypewriterActive) return;
             
             typewriterInterval = setInterval(() => {
@@ -255,14 +253,14 @@ asks            └───────────┘
                     clearInterval(typewriterInterval);
                     setTimeout(() => {
                         if (isTypewriterActive) {
-                            startErasing();
+                            startErasing(speciesList, currentSpeciesIndex, currentCharIndex, currentSpecies);
                         }
                     }, 2000);
                 }
             }, 100);
         }
         
-        function startErasing() {
+        function startErasing(speciesList, currentSpeciesIndex, currentCharIndex, currentSpecies) {
             if (!isTypewriterActive) return;
             
             typewriterInterval = setInterval(() => {
@@ -287,36 +285,19 @@ asks            └───────────┘
                                 newIndex = Math.floor(Math.random() * speciesList.length);
                             } while (newIndex === currentSpeciesIndex && speciesList.length > 1);
                             
-                            currentSpeciesIndex = newIndex;
-                            currentCharIndex = 0;
-                            currentSpecies = speciesList[currentSpeciesIndex];
-                            startTypewriter();
+                            // currentSpeciesIndex = newIndex;
+                            // currentCharIndex = 0;
+                            // currentSpecies = speciesList[currentSpeciesIndex];
+                            startTypewriter(speciesList);
                         }
                     }, 500);
                 }
             }, 50);
         }
 
-        //Pre-populated species list
-        const speciesList = [
-            'Panthera leo',
-            'Tyrannosaurus rex',
-            'Quercus alba',
-            'Apis mellifera',
-            'Canis lupus',
-            'Aquila chrysaetos',
-            'Rosa damascena',
-            'Balaenoptera musculus',
-            'Drosophila melanogaster',
-            'Acer saccharum'
-        ];
-        
-
         // Initialize the autosuggest when DOM is loaded
         document.addEventListener('DOMContentLoaded', async () => {
-            
-            // const speciesList = await getSpecies();
-            // console.log(speciesList)
+            const speciesList = await getSpeciesList();
 
             if (Zai.isWideScreen) {
 
@@ -329,13 +310,13 @@ asks            └───────────┘
                     // Initialize typewriter
                     if (!isTypewriterActive) {
                         isTypewriterActive = true;
-                        currentSpeciesIndex = Math.floor(Math.random() * speciesList.length);
-                        currentCharIndex = 0;
-                        currentSpecies = speciesList[currentSpeciesIndex];
+                        // currentSpeciesIndex = Math.floor(Math.random() * speciesList.length);
+                        // currentCharIndex = 0;
+                        // currentSpecies = speciesList[currentSpeciesIndex];
                         
                         // Start with "describe "
                         input.innerHTML = 'describe&nbsp;';
-                        startTypewriter();
+                        startTypewriter(speciesList);
                     }
 
                     moveCursorToEnd(input);
@@ -408,6 +389,17 @@ asks            └───────────┘
                 }
                 
             });
+
+            const url = `${Zai.uris.zenodeo}/v3/treatments?cachedQueries=true`;
+            const resp = await fetch(url);
+
+            if (resp.ok) {
+                const { query, response } = await resp.json();
+                const { count, records } = response;
+
+                $("#dropdown").innerHTML = records
+                    .map(r => `<li>${r}</li>`).join('');
+            }
 
             // if an example query is selected from the list
             $$('#dropdown li').forEach((item) => {
