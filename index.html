@@ -62,7 +62,17 @@
             
             <div id="example-queries" class="is-hidden">
                 <p>Keep the queries short, no more than 3-5 words long. Focus on a single task and a single species, and <i>include</i> the <span class="speciesName">species name</span> in the query. This allows a more focused context to be presented to the LLM. Here are a few examples to get you started:</p>
-                <ul id="dropdown"></ul>
+                <ul id="dropdown">
+                    <li>What is Saigona baiseensis?</li>
+                    <li>Describe Saigona sinicola</li>
+                    <li>Describe Carvalhoma malcolmae</li>
+                    <li>Does Rhinolophus sinicus live in caves?</li>
+                    <li>Where does Laephotis botswanae roost?</li>
+                    <li>What distinguishes Choanolaimus sparsiporus?</li>
+                    <li>What is the etymology of Gammanema lunatum?</li>
+                    <li>Describe Amnestus sinuosus</li>
+                    <li>What distinguishes Cynodon gibbus from other cofamilial genera?</li>
+                </ul>
             </div>
 
             <div id="responses">
@@ -191,7 +201,16 @@ asks            └───────────┘
         } from './js/utils.js';
         import { Router, reroute } from './js/router.js';
         import SpeciesAutosuggest from './js/autosuggest.js';
-        import { getSpecies, go, reset, tweakUrl, hidePlaceholder, showPlaceholder, type } from './js/askzai.js';
+        import { 
+            getSpecies, 
+            go, 
+            reset, 
+            tweakUrl, 
+            hidePlaceholder, 
+            showPlaceholder, 
+            type 
+        } from './js/askzai.js';
+        import { populateExampleDropdown } from './js/exampleQueries.js';
 
         tweakUrl(window.location.href);
 
@@ -390,16 +409,20 @@ asks            └───────────┘
                 
             });
 
-            const url = `${Zai.uris.zenodeo}/v3/treatments?cachedQueries=true`;
-            const resp = await fetch(url);
+            await populateExampleDropdown();
+            // const url = `${Zai.uris.zenodeo}/v3/treatments?cachedQueries=true`;
+            // const resp = await fetch(url);
 
-            if (resp.ok) {
-                const { query, response } = await resp.json();
-                const { count, records } = response;
+            // if (resp.ok) {
+            //     const { query, response } = await resp.json();
+            //     const { count, records } = response;
 
-                $("#dropdown").innerHTML = records
-                    .map(r => `<li>${r}</li>`).join('');
-            }
+            //     if (records) {
+            //         $("#dropdown").innerHTML = records
+            //             .map(r => `<li>${r}</li>`).join('');
+            //     }
+                
+            // }
 
             // if an example query is selected from the list
             $$('#dropdown li').forEach((item) => {

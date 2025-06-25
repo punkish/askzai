@@ -282,12 +282,37 @@ async function go(query, refreshCache) {
             cacheHit 
         } = await resp.json();
         
-        const { count, records, answer } = response;
-        const niceCount = niceNumbers(count);
+        let question = query;
+        let answer = response.answer;
+        let records;
+        let searchTerms;
+        let count;
+        
+        if (binomen) {
+            records = response.records;
+            count = response.count;
+        }
+        else {
+            records = response.ftsSearch.topRanked;
+            searchTerms = response.ftsSearch.searchTerms;
+            count = response.ftsSearch.count;
+        }
 
-        $("#response").innerHTML = isQueryForSummary(query)
-            ? responseForSummary({ count: niceCount, binomen, records })
-            : responseForLLM({ searchTerms, count: niceCount, stored, ttl, cacheHit });
+        let niceCount = niceNumbers(count);
+
+        $("#response").innerHTML = isQueryForSummary(question)
+            ? responseForSummary({ 
+                count: niceCount, 
+                binomen, 
+                records 
+            })
+            : responseForLLM({ 
+                searchTerms, 
+                count: niceCount, 
+                stored, 
+                ttl, 
+                cacheHit 
+            });
 
         let imageMsg = '';
 
