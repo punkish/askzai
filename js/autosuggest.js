@@ -257,8 +257,10 @@ const SpeciesAutosuggest = (() => {
         document.addEventListener('click', handleClickOutside);
 
         // Focus input on load
-        input.focus();
-
+        if (window.focusOnInput) {
+            input.focus();
+        }
+        
         //console.log('Species Autosuggest initialized successfully');
         return true;
     };

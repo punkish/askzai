@@ -217,6 +217,7 @@ asks            └───────────┘
         const placeholderOverlay = $('.placeholder-overlay');
         const input = $('#q');
         const id = $('#binomen_id');
+        window.focusOnInput = false;
         
         // Set the width of the columns
         $('.columns').style.setProperty(
@@ -225,14 +226,11 @@ asks            └───────────┘
         );
 
         if (Zai.isWideScreen) {
-            placeholderOverlay.innerHTML = 'Ask me something, or <span class="placeholder-clickable">I can describe a species</span>';
+            placeholderOverlay.innerHTML = 'Ask me something, or <span class="placeholder-clickable">I can describe more than 760K species</span>';
         }
         
         let typewriterInterval;
         let isTypewriterActive = false;
-        // let currentSpeciesIndex = 0;
-        // let currentCharIndex = 0;
-        // let currentSpecies = '';
 
         function stopTypewriter() {
 
@@ -303,10 +301,6 @@ asks            └───────────┘
                             do {
                                 newIndex = Math.floor(Math.random() * speciesList.length);
                             } while (newIndex === currentSpeciesIndex && speciesList.length > 1);
-                            
-                            // currentSpeciesIndex = newIndex;
-                            // currentCharIndex = 0;
-                            // currentSpecies = speciesList[currentSpeciesIndex];
                             startTypewriter(speciesList);
                         }
                     }, 500);
@@ -385,7 +379,10 @@ asks            └───────────┘
             const router = new Router(routes);
             router.listen();
             
-            input.focus();
+            if (window.focusOnInput) {
+                input.focus();
+            }
+            
             $('#reset').addEventListener('click', reset);
 
             $('#go').addEventListener('click', (e) => {
@@ -410,19 +407,6 @@ asks            └───────────┘
             });
 
             await populateExampleDropdown();
-            // const url = `${Zai.uris.zenodeo}/v3/treatments?cachedQueries=true`;
-            // const resp = await fetch(url);
-
-            // if (resp.ok) {
-            //     const { query, response } = await resp.json();
-            //     const { count, records } = response;
-
-            //     if (records) {
-            //         $("#dropdown").innerHTML = records
-            //             .map(r => `<li>${r}</li>`).join('');
-            //     }
-                
-            // }
 
             // if an example query is selected from the list
             $$('#dropdown li').forEach((item) => {
