@@ -53,4 +53,11 @@ async function getSpeciesList() {
     return speciesList
 }
 
-export { $, $$, getInputText, moveCursorToEnd, toggleVisibility, getSpeciesList }
+export { 
+    $, 
+    $$, 
+    getInputText, 
+    moveCursorToEnd, 
+    toggleVisibility, 
+    getSpeciesList 
+}
