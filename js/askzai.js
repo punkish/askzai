@@ -579,16 +579,12 @@ function submitForm(input, query) {
 }
 
 async function getSpecies(searchTerm) {
-    let url = `${Zai.uris.zenodeo}/v3/binomens?binomen=`;
 
-    if (searchTerm) {
-        url += `${searchTerm}`;
-    }
-    else {
-        searchTerm = chance.word({ length: 3 })
-        url += `contains(${searchTerm})`;
+    if (!searchTerm) {
+        searchTerm = chance.word({ length: 3 });
     }
 
+    const url = `${Zai.uris.zenodeo}/v3/binomens?binomen=${searchTerm}`;
     const resp = await fetch(url);
 
     if (resp.ok) {
@@ -608,4 +604,14 @@ async function getSpecies(searchTerm) {
 
 }
 
-export { onPageLoad, go, reset, submitForm, tweakUrl, getSpecies, hidePlaceholder, showPlaceholder, type }
+export { 
+    onPageLoad, 
+    go, 
+    reset, 
+    submitForm, 
+    tweakUrl, 
+    getSpecies, 
+    hidePlaceholder, 
+    showPlaceholder, 
+    type
+}
