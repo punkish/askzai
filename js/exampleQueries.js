@@ -14,12 +14,12 @@ const exampleQueries = [
 export async function populateExampleDropdown() {
     const url = `${Zai.uris.zenodeo}/v3/treatments?cachedQueries=true`;
     const resp = await fetch(url);
+    let newList = exampleQueries;
 
     if (resp.ok) {
         const { query, response } = await resp.json();
         const { count, records } = response;
-        let newList = exampleQueries;
-
+        
         if (records) {
 
             // Union of two arrays (with no duplicates)
@@ -29,6 +29,6 @@ export async function populateExampleDropdown() {
 
     }
     
-    $("#dropdown").innerHTML = exampleQueries
+    $("#dropdown").innerHTML = newList
         .map(question => `<li>${question}</li>`).join('');
 }
