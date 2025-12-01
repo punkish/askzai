@@ -317,7 +317,8 @@ span.res {
 #example-queries {
     font-family: sans-serif;
     font-size: 10pt;
-    width: 288px;
+    /* width: 288px; */
+    padding: 1rem;
 }
 
 .is-hidden {
@@ -341,7 +342,7 @@ span.res {
     padding: 0;
 }
 #dropdown li {
-    padding: 2px;
+    padding: 5px;
     margin: 0;
     cursor: pointer;
     list-style: none;
