@@ -222,10 +222,6 @@ asks            └───────────┘
             '--container-width', 
             `${Zai.bodyWidth}px`
         );
-
-        if (Zai.isWideScreen) {
-            placeholderOverlay.innerHTML = 'Ask me something, or <span class="placeholder-clickable">I can describe more than 760K species</span>';
-        }
         
         let typewriterInterval;
         let isTypewriterActive = false;
@@ -308,9 +304,10 @@ asks            └───────────┘
 
         // Initialize the autosuggest when DOM is loaded
         document.addEventListener('DOMContentLoaded', async () => {
-            const speciesList = await getSpeciesList();
+            const { count, speciesList } = await getSpeciesList();
 
             if (Zai.isWideScreen) {
+                placeholderOverlay.innerHTML = `Ask me something, or <span class="placeholder-clickable">I can describe more than ${(count/1000).toFixed(0)}K species</span>`;
 
                 // Handle placeholder clickable span
                 $('.placeholder-clickable').addEventListener('click', (e) => {

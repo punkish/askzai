@@ -204,21 +204,29 @@ function stripThink(text) {
 
 function sourcesHTML(records) {
     const srcList = records.map((s, i) => {
-        let cite = `<li id="source-${i + 1}" class="sources"><a href="${Zai.uris.tb}/${s.treatmentId}" target="_blank">${s.treatmentTitle}</a> from <cite>${s.articleAuthor} `;
+        let cite = `<li id="source-${i + 1}" class="sources"><a href="${Zai.uris.tb}/${s.treatmentId}" target="_blank">${s.treatmentTitle}</a> from: ${s.articleAuthor} `;
         
         if (s.publicationDate) {
-            cite += `${s.publicationDate}. `;
+            cite += `(${s.publicationDate}). `;
         }
 
         if (s.articleTitle) {
-            cite += `${s.articleTitle}`;
+            cite += `${s.articleTitle}. `;
+        }
+
+        if (s.journalTitle) {
+            cite += `<i>${s.journalTitle}</i> `;
+
+            if (s.journalYear) {
+                cite += `<i>${s.journalYear}</i>`;
+            }
         }
 
         if (s.articleDOI) {
             cite += `, DOI: <a href="https://doi.org/${s.articleDOI}">${s.articleDOI}</a>`;
         }
 
-        cite += `</cite></li>`;
+        cite += `</li>`;
         return cite;
     }).join('\n');
 
@@ -384,10 +392,15 @@ function responseForSummary({ count, binomen, records }) {
     const source = i > -1 ? records[i] : records[0];
 
     if (i > -1) {
-        str += `Here is the summary derived from the full text of the <a href="#source-0">treatment</a>`;
+        str += `Here is the summary derived from the full text of the treatment with status "sp. nov."`;
     }
     else {
-        str += `Here is the summary derived from the full text of the first <a href="#source-0">treatment</a>`;
+        if (count > 1) {
+            str += `Here is the summary derived from the full text of the first treatment`;
+        }
+        else {
+            str += `Here is the summary derived from the full text of the treatment`;
+        }
     }
 
     if (source.status) {

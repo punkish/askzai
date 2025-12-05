@@ -22,6 +22,7 @@ function toggleVisibility(el) {
 }
 
 async function getSpeciesList() {
+    let count = '583K';
 
     // Pre-populated species list
     let speciesList = [
@@ -37,20 +38,21 @@ async function getSpeciesList() {
         'Acer saccharum'
     ];
 
-    const url = `${Zai.uris.zenodeo}/v3/binomens?binomen=contains(ser)`;
+    const url = `${Zai.uris.zenodeo}/v3/binomens`;
     const resp = await fetch(url);
 
     if (resp.ok) {
         const { query, response } = await resp.json();
-        const { count, records } = response;
+        const res = response;
+        count = res.count;
 
-        if (records.length) {
-            speciesList = records.map(r => r.binomen);
+        if (res.records.length) {
+            speciesList = res.records.map(r => r.binomen);
         }
         
     }
     
-    return speciesList
+    return { count, speciesList }
 }
 
 export { 
