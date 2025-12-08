@@ -271,11 +271,11 @@ async function go(query, refreshCache) {
 
     const resp = await fetch(url);
 
-    const qords = query.split(' ');
+    const qWords = query.split(' ');
     let binomen;
 
-    if (qords[0].toLowerCase() === 'describe') {
-        binomen = qords.slice(1).join(' ');
+    if (qWords[0].toLowerCase() === 'describe') {
+        binomen = qWords.slice(1).join(' ');
     }
     
     //const res = await toJSON(response.body);
@@ -306,21 +306,11 @@ async function go(query, refreshCache) {
             count = response.ftsSearch.count;
         }
 
-        let niceCount = niceNumbers(count);
+        //const niceCount = niceNumbers(count);
 
         $("#response").innerHTML = isQueryForSummary(question)
-            ? responseForSummary({ 
-                count: niceCount, 
-                binomen, 
-                records 
-            })
-            : responseForLLM({ 
-                searchTerms, 
-                count: niceCount, 
-                stored, 
-                ttl, 
-                cacheHit 
-            });
+            ? responseForSummary({ count, binomen, records })
+            : responseForLLM({ searchTerms, count, stored, ttl, cacheHit });
 
         let imageMsg = '';
 
@@ -330,16 +320,15 @@ async function go(query, refreshCache) {
                 : 'Here is a related image\n\n';
         }
 
-        const conclusion = `${answer} ${imageMsg}`;
-
         type({
             container: $("#answer"), 
-            text: conclusion, 
+            text: `${answer} ${imageMsg}`, 
             cb: () => drawImage({
                 relatedImages: records[0].images, 
                 sourceHTML: sourcesHTML(records)
             })
         });
+
     }
 
     goButton.classList.remove("button--loading");
@@ -379,14 +368,8 @@ function responseForLLM({ searchTerms, count, stored, ttl, cacheHit }) {
 }
 
 function responseForSummary({ count, binomen, records }) {
-    let str;
-    
-    if (count === 'one') {
-        str = `Found <span class="res">${count}</span> treatment of the binomen <span class="res">${binomen}</span>. `;
-    }
-    else {
-        str = `Found <span class="res">${count}</span> treatments of the binomen <span class="res">${binomen}</span>. `;
-    }
+    const t = count === 1 ? 'treatment' : 'treatments';
+    let str = `Found <span class="res">${niceNumbers(count)}</span> ${t} of the binomen <span class="res">${binomen}</span>. `;
 
     const i = records.findIndex(e => e.status === 'sp. nov.');
     const source = i > -1 ? records[i] : records[0];
@@ -395,12 +378,14 @@ function responseForSummary({ count, binomen, records }) {
         str += `Here is the summary derived from the full text of the treatment with status "sp. nov."`;
     }
     else {
+
         if (count > 1) {
             str += `Here is the summary derived from the full text of the first treatment`;
         }
         else {
             str += `Here is the summary derived from the full text of the treatment`;
         }
+
     }
 
     if (source.status) {
@@ -408,7 +393,6 @@ function responseForSummary({ count, binomen, records }) {
     }
 
     str += ':';
-    
     return `<p>${str}</p>`;
 }
 
@@ -434,23 +418,25 @@ function drawImage({ relatedImages, sourceHTML }) {
             relatedImagesContainer.classList.add("columns");
         }
 
-        relatedImages.forEach((image, index) => {
-            const fig = document.createElement("figure");
-            fig.classList.add(`treatment-image-${index}`);
-            const img = document.createElement("img");
+        relatedImages
+            .filter(image => image.httpUri != '')
+            .forEach((image, index) => {
+                const fig = document.createElement("figure");
+                fig.classList.add(`treatment-image-${index}`);
+                const img = document.createElement("img");
 
-            const uris = imageUrl(image.httpUri);
-            img.src = "img/bug.gif";
-            img.dataset.src = uris[`src${defaultImgSrc}`];
-            img.width = defaultImgWidth;
-            img.alt = "Treatment Image";
-            img.classList.add("lazyload");
-            fig.appendChild(img);
-            const figcaption = document.createElement("figcaption");
-            figcaption.textContent = image.captionText;
-            fig.appendChild(figcaption);
-            relatedImagesContainer.appendChild(fig);
-        });
+                const uris = imageUrl(image.httpUri);
+                img.src = "img/bug.gif";
+                img.dataset.src = uris[`src${defaultImgSrc}`];
+                img.width = defaultImgWidth;
+                img.alt = "Treatment Image";
+                img.classList.add("lazyload");
+                fig.appendChild(img);
+                const figcaption = document.createElement("figcaption");
+                figcaption.textContent = image.captionText;
+                fig.appendChild(figcaption);
+                relatedImagesContainer.appendChild(fig);
+            });
     }
 
     const sourceContainer = $("#source");
@@ -597,7 +583,7 @@ async function getSpecies(searchTerm) {
         searchTerm = chance.word({ length: 3 });
     }
 
-    const url = `${Zai.uris.zenodeo}/v3/binomens?binomen=${searchTerm}`;
+    const url = `${Zai.uris.zenodeo}/v3/binomens?binomen=starts_with(${searchTerm})`;
     const resp = await fetch(url);
 
     if (resp.ok) {
@@ -605,12 +591,10 @@ async function getSpecies(searchTerm) {
         const { count, records } = response;
 
         if (records) {
-            const species = records.map(r => r.binomen);
+            const sp = records.map(r => r.binomen);
             const len = searchTerm.length;
-            return species.filter(binomen => 
-                binomen.toLowerCase().substring(0, len) === searchTerm.     
-                    toLowerCase()
-            ).slice(0, 8);
+            const st = searchTerm.toLowerCase();
+            return sp.filter(b => b.toLowerCase().substring(0, len) === st). slice(0, 8);
         }
         
     }
