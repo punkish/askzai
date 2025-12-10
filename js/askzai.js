@@ -591,10 +591,18 @@ async function getSpecies(searchTerm) {
         const { count, records } = response;
 
         if (records) {
-            const sp = records.map(r => r.binomen);
-            const len = searchTerm.length;
             const st = searchTerm.toLowerCase();
-            return sp.filter(b => b.toLowerCase().substring(0, len) === st). slice(0, 8);
+            const stLen = searchTerm.length;
+            
+            return records
+                .map(r => r.binomen)
+                .filter(b => b.substring(0, stLen).toLowerCase() === st)
+                .slice(0, 8);
+                // .map(b => {
+                //     const str = b.substring(0, stLen);
+                //     const rest = b.substring(stLen);
+                //     return `<span class="searchterm">${str}</span>${rest}`
+                // });
         }
         
     }

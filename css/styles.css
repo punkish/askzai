@@ -510,6 +510,10 @@ figcaption details[open] summary {
     word-break: break-all;
 }
 
+.searchterm {
+    color: lightblue;
+}
+
 /* Larger than phablet */
 @media (min-width: 550px) {
     pre {
