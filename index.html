@@ -196,7 +196,7 @@ asks            └───────────┘
             moveCursorToEnd, 
             toggleVisibility,
             getSpeciesList,
-            cleanUrlQuery
+            cleanUrlParam
         } from './js/utils.js';
         import { Router, reroute } from './js/router.js';
         import SpeciesAutosuggest from './js/autosuggest.js';
@@ -397,7 +397,7 @@ asks            └───────────┘
                     }, 3000);
                 }
                 else {
-                    const cleanedQuery = cleanUrlQuery(query);
+                    const cleanedQuery = cleanUrlParam(query);
                     go(cleanedQuery);
                 }
                 
@@ -446,8 +446,8 @@ asks            └───────────┘
                 let query;
 
                 if (searchParams.has('heyzai')) {
-                    query = cleanUrlQuery(searchParams.has('heyzai'));
-                    //query = searchParams.get('heyzai').toString();
+                    const heyzai = searchParams.get('heyzai').toString();
+                    query = cleanUrlParam(heyzai);
                 }
 
                 go(query, refreshCache);

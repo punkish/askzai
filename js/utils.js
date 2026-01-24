@@ -55,29 +55,49 @@ async function getSpeciesList() {
     return { count, speciesList }
 }
 
-function cleanUrlQuery(query) {
-    // const urlObj = new URL(url);
-    // const params = new URLSearchParams(urlObj.search);
-    
-    // Clean each parameter value
-    //for (let [key, value] of params.entries()) {
-      // Decode and clean the value
-      let cleaned = query.replace(/\s+/g, ' '); // Normalize whitespace
-      cleaned = cleaned.replace(/[^a-zA-Z0-9 .,!?;:()\-'"]/g, ''); // Remove unwanted chars
-      cleaned = cleaned.replace(/ +/g, ' ').trim(); // Single spaces only
-      
-      //params.set(key, cleaned);
-    //}
-    
-    // urlObj.search = params.toString();
-    // return urlObj.toString();
-    return cleaned;
-}
-
 // Example usage:
 // const dirtyUrl = "http://askzai.net/?heyzai=What%20is%C2%A0Adalia%20decempunctata";
 // console.log(cleanUrlQueryValues(dirtyUrl));
 // // Output: "http://askzai.net/?heyzai=What+is+Adalia+decempunctata"
+function cleanUrlQuery(query) {
+    const urlObj = new URL(url);
+    const params = new URLSearchParams(urlObj.search);
+    
+    // Clean each parameter value
+    for (let [key, value] of params.entries()) {
+
+        // Decode and clean the value
+        // Normalize whitespace
+        let cleaned = query.replace(/\s+/g, ' ');
+
+        // Remove unwanted chars
+        cleaned = cleaned.replace(/[^a-zA-Z0-9 .,!?;:()\-'"]/g, '');
+
+        // Single spaces only
+        cleaned = cleaned.replace(/ +/g, ' ').trim();
+        
+        params.set(key, cleaned);
+    }
+    
+    urlObj.search = params.toString();
+    return urlObj.toString();
+}
+
+function cleanUrlParam(query) {
+    
+    // Clean each parameter value
+    // Decode and clean the value
+    // Normalize whitespace
+    let cleaned = query.replace(/\s+/g, ' ');
+
+    // Remove unwanted chars
+    cleaned = cleaned.replace(/[^a-zA-Z0-9 .,!?;:()\-'"]/g, '');
+
+    // Single spaces only
+    cleaned = cleaned.replace(/ +/g, ' ').trim();
+      
+    return cleaned;
+}
 
 export { 
     $, 
@@ -86,5 +106,5 @@ export {
     moveCursorToEnd, 
     toggleVisibility, 
     getSpeciesList,
-    cleanUrlQuery
+    cleanUrlParam
 }
