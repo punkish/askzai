@@ -195,7 +195,8 @@ asks            └───────────┘
             getInputText, 
             moveCursorToEnd, 
             toggleVisibility,
-            getSpeciesList
+            getSpeciesList,
+            cleanUrlQuery
         } from './js/utils.js';
         import { Router, reroute } from './js/router.js';
         import SpeciesAutosuggest from './js/autosuggest.js';
@@ -396,7 +397,8 @@ asks            └───────────┘
                     }, 3000);
                 }
                 else {
-                    go(query);
+                    const cleanedQuery = cleanUrlQuery(query);
+                    go(cleanedQuery);
                 }
                 
             });
@@ -444,7 +446,8 @@ asks            └───────────┘
                 let query;
 
                 if (searchParams.has('heyzai')) {
-                    query = searchParams.get('heyzai').toString();
+                    query = cleanUrlQuery(searchParams.has('heyzai'));
+                    //query = searchParams.get('heyzai').toString();
                 }
 
                 go(query, refreshCache);
