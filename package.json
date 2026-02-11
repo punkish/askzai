@@ -1,0 +1,29 @@
+{
+  "name": "askzai",
+  "version": "1.0.0",
+  "description": "web interface to zai",
+  "keywords": [
+    "zai",
+    "zenodeo"
+  ],
+  "homepage": "https://github.com/punkish/askzai#readme",
+  "bugs": {
+    "url": "https://github.com/punkish/askzai/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/punkish/askzai.git"
+  },
+  "license": "CC0-1.0",
+  "author": "Puneet Kishor",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "node build.js"
+  },
+  "devDependencies": {
+    "clean-css": "^5.3.3",
+    "terser": "^5.46.0"
+  }
+}

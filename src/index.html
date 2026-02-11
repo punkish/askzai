@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zai</title>
+    <meta name="description" content="answering questions since before it was cool">
+    <head prefix="og: http://ogp.me/ns#">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Ask Zai">
+    <link rel="apple-touch-icon" sizes="180x180" href="img/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="img/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="img/icons/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/pop-pop.min.css">
+</head>
+<body>
+    <header>
+        <img id="home" src="img/zai.svg" alt="Zai, the Zenodeo ai">
+        <nav>
+            <ul>
+                <li><a href="/index.html">Zai</a></li>
+                <li><a href="/about.html" class="route">About</a></li>
+                <li><a href="/how-this-works.html" class="route">Info</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section id="index">
+            <form id="speciesForm">
+                <div class="input-container">
+                    <div id="inner-input-container">
+                        <div id="q" 
+                            class="editable-input" 
+                            contenteditable="true"
+                            spellcheck="false"
+                            role="textbox"
+                            aria-label="Description input field"></div>
+                        <div id="placeholder-overlay" class="placeholder-overlay">
+                            Ask me something
+                        </div>
+                        <input name="refreshCache" 
+                            type="checkbox" 
+                            value="true" 
+                            aria-label="refresh cache: you probably don't want to do this" 
+                            data-pop="top" 
+                            data-pop-no-shadow 
+                            data-pop-arrow 
+                            data-pop-multiline>
+                    </div>
+                    <div id="suggestions" 
+                        class="suggestions" 
+                        role="listbox" 
+                        aria-label="Species suggestions"></div>
+                    
+                </div>
+                <div id="buttons">
+                    <button 
+                        id="reset" 
+                        type="reset" 
+                        aria-label="reset search" 
+                        data-pop="top" 
+                        data-pop-no-shadow 
+                        data-pop-arrow>&#8855;</button>
+                    <button id="go" type="submit">→</button> 
+                </div>
+            </form>
+                
+            <div class="hint">
+                💡 <b>Tip:</b> Check out <a href="#showExamples">example queries</a> or start typing "describe" followed by a species name to see suggestions!
+            </div>
+            
+            <div id="example-queries" class="is-hidden">
+                <p>Keep the queries short, no more than 3-5 words long. Focus on a single task and a single species, and <i>include</i> the <span class="speciesName">species name</span> in the query. This allows a more focused context to be presented to the LLM. Here are a few examples to get you started:</p>
+                <ul id="dropdown">
+                    <li>What is Saigona baiseensis?</li>
+                    <li>Describe Saigona sinicola</li>
+                    <li>Describe Carvalhoma malcolmae</li>
+                    <li>Does Rhinolophus sinicus live in caves?</li>
+                    <li>Where does Laephotis botswanae roost?</li>
+                    <li>What distinguishes Choanolaimus sparsiporus?</li>
+                    <li>What is the etymology of Gammanema lunatum?</li>
+                    <li>Describe Amnestus sinuosus</li>
+                    <li>What distinguishes Cynodon gibbus from other cofamilial genera?</li>
+                </ul>
+            </div>
+
+            <div id="responses">
+                <div id="response"></div>
+                <div id="answer"></div>
+                <div id="relatedImages" class="columns"></div>
+                <div id="source"></div>
+            </div>
+        </section>
+
+        <section id="about" class="is-hidden">
+            <a class="route backhome" href="/index.html">←</a>
+            <h2>About</h2>
+
+            <p><span class="hl">Zai</span> is the <span class="hl">Z</span><span class="stopword">enodeo</span> <span class="hl">ai</span> providing a Q&A access to the ~1M treatments extracted by Plazi and made available on <a href="https://treatmentbank.org" target=""_blank">TreatmentBank</a> and <a href="https://zenodo.org/communities/biosyslit/" target="_blank">BLR on Zenodo</a>.</p>
+            
+            <p>Zai responds to simple and focused questions with easy-to-understand summaries or pointed answers. It cannot (yet) respond to questions that span many documents, and is best at extracting answers from a single treatment that can be pin-pointed with a full-text search.</p>
+
+            <p>Zai is also the <a href="https://resources.allsetlearning.com/chinese/grammar/Expressing_existence_in_a_place_with_%22zai%22" target="_blank">Chinese verb 在 (zài)</a> for describing existence in a location, similar to how we say in English, "to be at" or "to be in."</p>
+        </section>
+
+        <section id="semantic-cache" class="is-hidden">
+            <a class="route backhome" href="/index.html">←</a>
+            <h2>Semantic Cache</h2>
+            <p>We use the <a href="https://huggingface.co/Supabase/gte-small" target="_blank">Supabase/gte-small</a> model for generating vector embeddings of queries.</p>
+            <pre>
+                                   ┌───────────┐ 
+                                   │what is the│ 
+   ┌──────────────────────────────▶│meaning of │──┐
+   │                               │life?      │  │
+ asks                              └───────────┘  │
+   │                                     │        │
+   │        ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─│─ ─ ─ ─ ┼ 
+   │           semantic cache            │        ││
+┌────┐      │       ┌─────────┐   ┌──────▼────┐   │ 
+│\O/ │              │search   │   │convert    │   ││
+│ |  │  42  │       │for exact│   │query to   │   │ 
+│/ \ │◀───────found─┤key in   ◀───│unique     │   ││
+│user│      │       │cache    │   │cache key  │   │ 
+└────┘              └────┬────┘   └───────────┘   ││
+   ▲        │            │                        │ 
+   │                  not found                   ││
+   │        │            │                        │ 
+   │                ┌────▼────┐                   ││
+   │        │       │convert  │                   │ 
+   │                │to       │                   ││
+   │        │       │embedding│◀──────────────────┘ 
+   │                │vector   │                    │
+   │        │       └─────────┘                     
+   │                                               │
+   │        │       ┌────────────────────┐          
+   │                │search for query    │         │
+   │        │       │with highest cosine │          
+   └──────────found─│similarity above a  │         │
+            │       │preset threshold    │          
+                    └────────────────────┘         │
+            │                  │                    
+             ─ ─ ─ ─ ─ ─ ─ ─ ─ ┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘
+                              no   
+                               │   
+                               ▼   
+            </pre>
+        </section>
+
+        <section id="how-this-works" class="is-hidden">
+            <a class="route backhome" href="/index.html">←</a>
+            <h2>How this works</h2>
+            <pre>
+                ┌───────────┐
+                │what is the│
+  ┌────────────▶│meaning of │
+  │             │life?      │
+asks            └───────────┘
+  │                   │      
+  │        ┌ ─ ─ ─ ─ ─│─ ─ ─ ─ ── ─ ─ ─ ─ ─ ─ ─ ─ ─ 
+┌────┐                │         <a href="/semantic-cache.html" class="route">semantic cache</a>     │
+│\O/ │     │    ┌─────▼─────┐                       
+│ |  │      yes │is the     │          ┌──────┐    │
+│/ \ │◀──42┼────│answer in  │─────────▶│cache │     
+│user│          │cache?     │          └───▲──┘    │
+└────┘     │    └───────────┘              │        
+                     no                    │       │
+           └ ─ ─ ─ ─ ─│─ ─ ─ ─ ── ─ ─ ─ ─ ─│─ ─ ─ ─ 
+                      │                    │     
+             ┌────────▼───────┐            │     
+             │remove stopwords│      ┌─────┴────┐
+             │"what", "is",   │      │ response │
+             │"the", and "of" │      └─────▲────┘
+             └────────┬───────┘            │     
+                      │              ┌─────┴────┐
+             ┌────────▼───────┐      │   LLM    │
+             │full text search│      └─────▲────┘
+             │of "meaning" and│            │     
+             │"life"          │            │     
+             └────────┬───────┘   ┌────────┴───────┐
+                      │           │question: "what │
+                      │           │is the meaning  │
+                      │           │of life?"       │
+                      │    top  ─▶│                │
+                      │   ranked  │context: full   │
+                      │   paper   │text of the     │
+               ┌──────▼─────┐  │  │paper           │
+               │papers      │  │  └────────────────┘
+               │ranked by   │──┘ 
+               │relevance   │    
+               └────────────┘    
+            </pre>
+            <p>We are testing various LLMs including Alibaba's <a href="https://qwenlm.github.io/blog/qwen3/" target="_blank">Qwen 3:0.6b</a>, Meta's <a href="https://www.llama.com/models/llama-3/#models" target="_blank">Llama 3.2:1b and 3b</a>, and Google's <a href="https://ai.google.dev/gemma" target="_blank">Gemma 3</a> to generate answers to questions based on the context provided. The context is chosen from the full text search result of the relevant tokens in your query ranked by their relevance (BM25 score). The generated answers are stored in a <a href="/semantic-cache.html" class="route">semantic cache</a> for fast retrieval for subsequent queries.</p>
+        </section>
+    </main>
+    <footer>
+        <p>Published under the <a href="https://creativecommons.org/publicdomain/zero/1.0/legalcode">CC0 public domain dedication</a></p>
+    </footer>
+    <script src="js/lazysizes.min.js"></script>
+    <script src="  https://cdnjs.cloudflare.com/ajax/libs/showdown/1.9.0/showdown.min.js"></script>
+    <script type="module">
+        import { init } from './js/askzai.js';
+        init();
+    </script>
+</body>
+</html>

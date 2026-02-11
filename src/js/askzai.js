@@ -1,5 +1,16 @@
-import { $, $$ } from './utils.js';
+import { 
+    $, 
+    $$, 
+    getInputText, 
+    moveCursorToEnd, 
+    toggleVisibility,
+    getSpeciesList,
+    cleanUrlParam
+} from './utils.js';
 import { stopWords } from "./stopwords.js";
+import { Router, reroute } from './router.js';
+import { populateExampleDropdown } from './exampleQueries.js';
+import SpeciesAutosuggest from './autosuggest.js';
 
 // Convert milliseconds to days:hours:mins without seconds
 // https://stackoverflow.com/a/8528531/183692
@@ -268,10 +279,9 @@ async function go(query, refreshCache) {
     // queryString has 'heyzai=' added in front of the query
     const queryString = addToHistory(query);
     let url = `${Zai.uris.zenodeo}/v3/treatments?${queryString}`;
-
     const refreshCacheCheckbox = $("input[name=refreshCache]");
 
-    if (refreshCacheCheckbox.checked) {
+    if (refreshCache || refreshCacheCheckbox.checked) {
         url += `&refreshCache=true`;
     }
 
@@ -617,14 +627,270 @@ async function getSpecies(searchTerm) {
 
 }
 
+function init() {
+    tweakUrl(window.location.href);
+
+    const placeholderOverlay = $('.placeholder-overlay');
+    const input = $('#q');
+    const id = $('#binomen_id');
+    window.focusOnInput = false;
+    
+    // Set the width of the columns
+    $('.columns').style.setProperty(
+        '--container-width', 
+        `${Zai.bodyWidth}px`
+    );
+    
+    let typewriterInterval;
+    let isTypewriterActive = false;
+
+    function stopTypewriter() {
+
+        if (typewriterInterval) {
+            clearInterval(typewriterInterval);
+            typewriterInterval = null;
+        }
+
+        isTypewriterActive = false;
+        
+        // Clear input and set to just "describe "
+        input.innerHTML = 'describe&nbsp;';
+        moveCursorToEnd(input)
+    }
+
+    function startTypewriter(speciesList) {
+        let currentSpeciesIndex = Math.floor(Math.random() * speciesList.length);
+        let currentCharIndex = 0;
+        let currentSpecies = speciesList[currentSpeciesIndex];
+
+        if (!isTypewriterActive) return;
+        
+        typewriterInterval = setInterval(() => {
+
+            if (currentCharIndex < currentSpecies.length) {
+                const char = currentSpecies.substring(
+                    0, 
+                    currentCharIndex + 1
+                );
+                input.innerHTML = `describe&nbsp;<span class="hl">${char}</span>`;
+                currentCharIndex++;
+            } 
+            else {
+
+                // Finished typing current species, 
+                // wait a bit then start erasing
+                clearInterval(typewriterInterval);
+                setTimeout(() => {
+                    if (isTypewriterActive) {
+                        startErasing(speciesList, currentSpeciesIndex, currentCharIndex, currentSpecies);
+                    }
+                }, 2000);
+            }
+        }, 100);
+    }
+    
+    function startErasing(speciesList, currentSpeciesIndex, currentCharIndex, currentSpecies) {
+        if (!isTypewriterActive) return;
+        
+        typewriterInterval = setInterval(() => {
+
+            if (currentCharIndex > 0) {
+                currentCharIndex--;
+                const char = currentSpecies.substring(0, currentCharIndex);
+                input.innerHTML = `describe&nbsp;<span class="hl">${char}</span>`;
+            } 
+            else {
+
+                // Finished erasing, 
+                // pick a new species and start typing again
+                clearInterval(typewriterInterval);
+                setTimeout(() => {
+                    if (isTypewriterActive) {
+
+                        // Pick a new random species 
+                        // (different from current one)
+                        let newIndex;
+                        do {
+                            newIndex = Math.floor(Math.random() * speciesList.length);
+                        } while (newIndex === currentSpeciesIndex && speciesList.length > 1);
+                        startTypewriter(speciesList);
+                    }
+                }, 500);
+            }
+        }, 50);
+    }
+
+    // Initialize the autosuggest when DOM is loaded
+    document.addEventListener('DOMContentLoaded', async () => {
+        const { count, speciesList } = await getSpeciesList();
+
+        if (Zai.isWideScreen) {
+            placeholderOverlay.innerHTML = `Ask me something, or <span class="placeholder-clickable">I can describe more than ${(count/1000).toFixed(0)}K species</span>`;
+
+            // Handle placeholder clickable span
+            $('.placeholder-clickable').addEventListener('click', (e) => {
+                e.preventDefault();
+                hidePlaceholder();
+                input.focus();
+                
+                // Initialize typewriter
+                if (!isTypewriterActive) {
+                    isTypewriterActive = true;
+                    // currentSpeciesIndex = Math.floor(Math.random() * speciesList.length);
+                    // currentCharIndex = 0;
+                    // currentSpecies = speciesList[currentSpeciesIndex];
+                    
+                    // Start with "describe "
+                    input.innerHTML = 'describe&nbsp;';
+                    startTypewriter(speciesList);
+                }
+
+                moveCursorToEnd(input);
+            });
+
+            // Stop typewriter when user clicks in the field
+            input.addEventListener('click', () => {
+                if (isTypewriterActive) {
+                    stopTypewriter();
+                }
+            });
+            
+            // Stop typewriter when user starts typing
+            input.addEventListener('keydown', () => {
+                if (isTypewriterActive) {
+                    stopTypewriter();
+                }
+            });
+
+        }
+
+        // Handle input focus and blur
+        input.addEventListener('focus', hidePlaceholder);
+        input.addEventListener('blur', showPlaceholder);
+        input.addEventListener('input', () => {
+            if (input.textContent.trim() !== '') {
+                hidePlaceholder();
+            } 
+            else {
+                showPlaceholder();
+            }
+        });
+        
+        // Initialize the router
+        const routes = Array.from($$('.route')).map(link => { 
+            return {
+                link, 
+                path: link.getAttribute('href'),
+                component: () => reroute(
+                    link.getAttribute('href')
+                        .replace('/', '')
+                        .replace('.html', '')
+                )
+            }
+        });
+
+        const router = new Router(routes);
+        router.listen();
+        
+        if (window.focusOnInput) {
+            input.focus();
+        }
+        
+        $('#reset').addEventListener('click', reset);
+
+        $('#go').addEventListener('click', (e) => {
+            e.preventDefault();
+            const query = getInputText(input);
+
+            if (query.length < 3) {
+                const placeholderOverlay = $('#placeholder-overlay');
+                const origPlaceHolder = placeholderOverlay.innerHTML;
+                placeholderOverlay.innerHTML = "C'mon now, ask something!";
+                placeholderOverlay.classList.add('warning');
+
+                setTimeout(() => { 
+                    placeholderOverlay.innerHTML = origPlaceHolder;
+                    placeholderOverlay.classList.remove('warning');
+                }, 3000);
+            }
+            else {
+                const cleanedQuery = cleanUrlParam(query);
+                go(cleanedQuery);
+            }
+            
+        });
+
+        await populateExampleDropdown();
+
+        // if an example query is selected from the list
+        $$('#dropdown li').forEach((item) => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                input.innerText = e.target.tagName === 'SPAN' 
+                    ? e.target.parentNode.innerText
+                    : e.target.innerText;
+                
+                toggleVisibility($("#example-queries"));
+                const query = getInputText(input);
+                go(query);
+            });
+        });
+
+        $(".hint a").addEventListener('click', (e) => {
+            e.preventDefault();
+            toggleVisibility($("#example-queries"));
+        });
+
+        $('header img').addEventListener('click', () => {
+            $('nav').classList.toggle('fade-in-normal');
+            setTimeout(() => { 
+                $('nav').classList.remove('fade-in-normal');
+            }, 4000);
+        });
+
+        if (window.location.search) {
+            const searchParams = new URLSearchParams(
+                decodeURIComponent(window.location.search)
+            );
+
+            let refreshCache = false;
+
+            if (searchParams.has('refreshCache')) {
+                refreshCache = true;
+                searchParams.delete('refreshCache');
+            }
+
+            let query;
+
+            if (searchParams.has('heyzai')) {
+                const heyzai = searchParams.get('heyzai').toString();
+                query = cleanUrlParam(heyzai);
+            }
+
+            go(query, refreshCache);
+        }
+        else {
+            SpeciesAutosuggest.init({
+                input,
+                id,
+                suggestionsContainer: $('#suggestions'),
+                form: $('#speciesForm'),
+                getSpecies,
+                doSomethingWithData: go
+            });
+        }
+    });
+}
+
 export { 
-    onPageLoad, 
-    go, 
-    reset, 
-    submitForm, 
-    tweakUrl, 
-    getSpecies, 
-    hidePlaceholder, 
-    showPlaceholder, 
-    type
+    // onPageLoad, 
+    // go, 
+    // reset, 
+    // submitForm, 
+    // tweakUrl, 
+    // getSpecies, 
+    // hidePlaceholder, 
+    // showPlaceholder, 
+    // type,
+    init
 }
