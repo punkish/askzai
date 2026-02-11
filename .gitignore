@@ -28,7 +28,7 @@ lerna-debug.log*
 ######################
 .DS_Store
 ehthumbs.db
-Icon?
+#Icon?
 Thumbs.db
 
 # Compiled source #
