@@ -40,6 +40,7 @@ function formatDate(d) {
 }
 
 function literalList(arr) {
+    
     function wrap(item) {
         return `<span class="hl">${item}</span>`;
     }
@@ -246,6 +247,8 @@ function addToHistory(query) {
     return queryString
 }
 
+const converter = new showdown.Converter();
+
 async function go(query, refreshCache) {
     hidePlaceholder();
     const goButton = $("#go");
@@ -262,10 +265,13 @@ async function go(query, refreshCache) {
     const input = $("#q");
     input.innerHTML = inputHTML;
 
+    // queryString has 'heyzai=' added in front of the query
     const queryString = addToHistory(query);
     let url = `${Zai.uris.zenodeo}/v3/treatments?${queryString}`;
 
-    if (refreshCache) {
+    const refreshCacheCheckbox = $("input[name=refreshCache]");
+
+    if (refreshCacheCheckbox.checked) {
         url += `&refreshCache=true`;
     }
 
@@ -285,13 +291,12 @@ async function go(query, refreshCache) {
             query, 
             response, 
             stored, 
-            ttl, 
-            isSemantic, 
-            cacheHit 
+            ttl,
+            cacheHit
         } = await resp.json();
         
         let question = query;
-        let answer = response.answer;
+        let answer = converter.makeHtml(response.answer);
         let records;
         let searchTerms;
         let count;
@@ -301,9 +306,9 @@ async function go(query, refreshCache) {
             count = response.count;
         }
         else {
-            records = response.ftsSearch.topRanked;
-            searchTerms = response.ftsSearch.searchTerms;
-            count = response.ftsSearch.count;
+            records = response.topRanked;
+            searchTerms = response.searchTerms.split(' ');
+            count = response.ftsCount;
         }
 
         //const niceCount = niceNumbers(count);
@@ -347,19 +352,22 @@ function niceNumbers(num) {
 
 function responseForLLM({ searchTerms, count, stored, ttl, cacheHit }) {
     let str;
+    const niceCount = niceNumbers(count);
     
-    if (count === 'one') {
-        str = `A full-text search for "${literalList(searchTerms)}" found <a href="#source-0">${count} paper</a>. Here is the answer derived from its full text:`;
+    if (count === 1) {
+        str = `A full-text search for "${literalList(searchTerms)}" found <a href="#source-0">one</a> paper that provides the context for the answer:`;
     }
     else {
-        str = `A full-text search for "${literalList(searchTerms)}" found <span class="res">${count}</span> papers. Here is the answer derived from the full text of the <a href="#source-0">top ranked paper</a>:`;
+        str = `A full-text search for "${literalList(searchTerms)}" found <span class="res">${niceCount}</span> papers. The <a href="#source-0">three top ranked</a> papers provide the context for the answer:`;
     }
 
     if (cacheHit) {
         const storedDate = new Date(stored);
-        const expires = new Date(stored + ttl) - new Date();
+        const expires = ttl === -1
+            ? 'never expires'
+            : `expires in ${formatTime(new Date(stored + ttl) - new Date())}`;
 
-        const cacheHitStr = `<span aria-label="cache hit, stored ${formatDate(storedDate)}, expires in ${formatTime(expires)}" data-html="true" data-pop="top" data-pop-no-shadow data-pop-arrow data-pop-multiline>💥</span>`;
+        const cacheHitStr = `<span aria-label="cache hit, stored ${formatDate(storedDate)}, ${expires}" data-html="true" data-pop="top" data-pop-no-shadow data-pop-arrow data-pop-multiline>💥</span>`;
 
         str += ` ${cacheHitStr}`;
     }

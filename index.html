@@ -30,19 +30,30 @@
         <section id="index">
             <form id="speciesForm">
                 <div class="input-container">
-                    <div id="q" 
-                        class="editable-input" 
-                        contenteditable="true"
-                        spellcheck="false"
-                        role="textbox"
-                        aria-label="Description input field"></div>
-                    <div id="placeholder-overlay" class="placeholder-overlay">
-                        Ask me something
+                    <div id="inner-input-container">
+                        <div id="q" 
+                            class="editable-input" 
+                            contenteditable="true"
+                            spellcheck="false"
+                            role="textbox"
+                            aria-label="Description input field"></div>
+                        <div id="placeholder-overlay" class="placeholder-overlay">
+                            Ask me something
+                        </div>
+                        <input name="refreshCache" 
+                            type="checkbox" 
+                            value="true" 
+                            aria-label="refresh cache: you probably don't want to do this" 
+                            data-pop="top" 
+                            data-pop-no-shadow 
+                            data-pop-arrow 
+                            data-pop-multiline>
                     </div>
                     <div id="suggestions" 
                         class="suggestions" 
                         role="listbox" 
                         aria-label="Species suggestions"></div>
+                    
                 </div>
                 <div id="buttons">
                     <button 
@@ -188,6 +199,7 @@ asks            └───────────┘
     </footer>
     <script src="js/lazysizes.min.js"></script>
     <script src="http://chancejs.com/chance.min.js"></script>
+    <script src="https://unpkg.com/showdown/dist/showdown.min.js"></script>
     <script type="module">
         import { 
             $, 
