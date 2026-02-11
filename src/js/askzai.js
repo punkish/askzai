@@ -279,7 +279,7 @@ async function go(query, refreshCache) {
     // queryString has 'heyzai=' added in front of the query
     const queryString = addToHistory(query);
     let url = `${Zai.uris.zenodeo}/v3/treatments?${queryString}`;
-    const refreshCacheCheckbox = $("input[name=refreshCache]");
+    const refreshCacheCheckbox = $("#refreshCache");
 
     if (refreshCache || refreshCacheCheckbox.checked) {
         url += `&refreshCache=true`;

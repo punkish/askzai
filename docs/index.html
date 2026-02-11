@@ -40,14 +40,16 @@
                         <div id="placeholder-overlay" class="placeholder-overlay">
                             Ask me something
                         </div>
-                        <input name="refreshCache" 
-                            type="checkbox" 
-                            value="true" 
+                        <label for="refreshCache" 
                             aria-label="refresh cache: you probably don't want to do this" 
                             data-pop="top" 
                             data-pop-no-shadow 
                             data-pop-arrow 
                             data-pop-multiline>
+                            <input id="refreshCache" 
+                                type="checkbox" 
+                                value="true">
+                        </label>
                     </div>
                     <div id="suggestions" 
                         class="suggestions" 

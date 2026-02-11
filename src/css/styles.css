@@ -163,7 +163,7 @@ form {
     font-style: italic;
 }
 
-input[name="refreshCache"] {
+#refreshCache {
     margin: 0 8px 0 0;
     align-self: center;
 }
@@ -307,9 +307,10 @@ span.res {
 .button--loading::after {
     content: "";
     position: absolute;
-    inset: 0;
     margin: auto;
 
+    left: 45px;
+    top: 4px;
     width: 20px;
     height: 20px;
 
