@@ -4,14 +4,15 @@ export class Router {
     
     constructor(routes) {
         this.routes = routes;
-        this._loadInitialRoute();
+        //this._loadInitialRoute();
+        this._loadRoute();
         window.addEventListener('popstate', () => this._loadRoute());
     }
 
-    _loadInitialRoute() {
-        const path = window.location.pathname;
-        this._navigate(path, false);
-    }
+    // _loadInitialRoute() {
+    //     const path = window.location.pathname;
+    //     this._navigate(path, false);
+    // }
 
     _navigate(path, addToHistory = true) {
         if (path === '/') {
@@ -61,12 +62,16 @@ export function reroute(page) {
     const sections = $$('section');
 
     sections.forEach(section => {
-        section.classList.add('is-hidden');
+        section.classList.add('hidden');
     });
 
     const homeSection = $(`section#${page}`);
 
     if (homeSection) {
-        homeSection.classList.remove('is-hidden');
+        homeSection.classList.remove('hidden');
     }
+    else {
+        console.warn(`No section found for page: ${page}`);
+    }
+    
 }

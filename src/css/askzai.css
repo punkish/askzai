@@ -1,0 +1,635 @@
+/* https://css-tricks.com/snippets/css/calculate-viewport-size-in-css/ */
+@property --_w {
+    syntax: '<length>';
+    inherits: true;
+    initial-value: 100vw; 
+}
+
+@property --_h {
+    syntax: '<length>';
+    inherits: true;
+    initial-value: 100vh; 
+}
+
+:root {
+
+    /* https://css-tricks.com/snippets/css/calculate-viewport-size-in-css/ */
+    /* The result is an integer without unit                               */
+    --w: tan(atan2(var(--_w),1px)); /* screen width */
+    --h: tan(atan2(var(--_h),1px)); /* screen height*/
+    
+
+    /* layout */
+    --body-max-width: 960px;
+    --body-padding: 20px;
+
+    /* form */
+    --form-height: 40px;
+    --form-radius: 24px;
+    --form-gap: 2px;
+    --form-padding: 2px;
+    --reset-width: 40px;
+    --submit-width: 50px;
+
+    /* describe toggle */
+    --toggle-width: 60px;
+    --toggle-height: calc(var(--form-height) - (2 * var(--form-padding)));
+    
+    --describeTag-width: 67px;
+
+    /* images */
+    --img-gutter: 20px;
+    --img-min: 229.3px;
+    --img-max: 300px;
+
+    /* fonts */
+    /* https://practicaltypography.com/system-fonts.html */
+    --font-main: "Goudy Old Style", Garamond, Palatino, serif;
+    --font-list: "Helvetica Neue", "Gill Sans", sans-serif;
+    
+    --font-main-color: #444;
+    --font-list-color: #444;
+
+    --font-main-size: 1.15rem;
+    --font-list-size: 0.8rem;
+
+    /* https://remtopx.com/blog/responsive-typography-best-practices/ */
+    --font-main-line-height: calc(1.4 + 0.2 * ((100vw - 320px) / (1200 - 320)));
+    --font-list-line-height: calc(80% * var(--font-main-line-height));
+}
+
+
+/* =========================================================
+   BASE
+   ========================================================= */
+* {
+    box-sizing: border-box;
+}
+
+/* 
+ * The html and body settings are important to make the footer 
+ * stick to the bottom when the body content is less than the 
+ * viewport height. See 
+ * https://developer.mozilla.org/en-US/docs/Web/CSS/Layout_cookbook/Sticky_footers
+ */
+html {
+    height: 100%;
+}
+
+body {
+    margin: 0 auto;
+    padding: var(--body-padding);
+    max-width: var(--body-max-width);
+    min-height: 100vh;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    font-family: var(--font-main);
+    color: var(--font-main-color);
+    background: #f5f5f5;
+    border: 1px solid grey;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+header,
+footer {
+    text-align: center;
+    font-family: sans-serif;
+}
+
+header img {
+    width: 40px;
+    cursor: pointer;
+}
+
+header nav {
+    margin-top: -1.25rem;
+}
+
+header nav ul {
+    padding-left: 37px;
+}
+
+header nav li {
+    display: inline;
+    list-style: none;
+    margin-right: 1rem;
+}
+
+/* =========================================================
+   CONTAINER
+   ========================================================= */
+.container {
+    width: 100%;
+    margin: 0 auto;
+    position: relative;
+}
+
+/* =========================================================
+   FORM
+   ========================================================= */
+
+/* 
+ * forms don't have a default width or height, and 
+ * instead, they take the dimensions of their content.
+ */
+form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--form-gap);
+    align-items: center;
+}
+
+/* ---------- input row ---------- */
+.form-row {
+    display: flex;
+    align-items: center;
+    gap: var(--form-gap);
+    flex: 1 1 100%;
+    border: 1px solid black;
+    border-radius: var(--form-radius);
+    padding: var(--form-padding);
+    background-color: white;
+}
+
+/* input wrapper */
+.input-wrapper {
+    flex: 1 1 auto;
+    min-width: 0;
+    position: relative;
+}
+
+#describeTag {
+    width: var(--describeTag-width);
+    font-size: 12px;
+    font-family: sans-serif;
+    color: grey;
+    background-color: lightgrey;
+    padding: 4px;
+    border-radius: 3px;
+    margin-left: 4px;
+}
+
+/* query input */
+#queryInput {
+    height: var(--form-height);
+    border: none;
+    outline: none;
+    /* padding: 8px; */
+    font-size: 14px;
+    background: transparent;
+    border-bottom: 1px solid white;
+  transition: border-color 0.3s ease;
+}
+#queryInput::placeholder {
+    color: grey;
+}
+#queryInput:focus {
+    border-color: #673ab7;
+}
+#queryInput:focus::placeholder {
+    color: lightgrey;
+}
+.queryInput {
+    width: 100%;
+}
+.queryInput-describeTag {
+    width: calc(100% - var(--describeTag-width));
+}
+
+/* refresh cache right aligned */
+.refresh-cache-container {
+    margin-left: auto;
+    margin-right: 3px;
+    display: flex;
+    align-items: center;
+    
+    /* optional, centers horizontally if needed */
+    justify-content: center;
+    gap: var(--form-gap);
+    border: 1px solid grey;
+    width: 30px;
+    height: 34px;
+    border-radius: 5px 20px 20px 5px;
+    background-color: #f5f5f5;
+}
+
+/* ensure the checkbox itself is vertically centered */
+.refresh-cache-container input[type="checkbox"] {
+    margin-left: 1px;
+    
+    /* small tweak if needed for perfect centering */
+    transform: translateY(1px);
+}
+
+#refreshCacheMsg {
+    margin: 10px 20px;
+    font-family: sans-serif;
+}
+
+/* ---------- buttons row ---------- */
+.buttons {
+    display: flex;
+    width: 100%;
+    gap: var(--form-gap);
+    position: relative;
+
+    /* This ensures the buttons look nicely placed on narrow screens */
+    /* This is reset in screens > 550px                              */
+    margin-left: 20px;
+}
+
+/* buttons */
+button {
+    height: calc(var(--form-height) - 6px);
+    border: 1px solid black;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+/* pill buttons */
+#resetBtn {
+    width: var(--reset-width);
+    border-radius: 5px 0 0 5px;
+}
+
+#resetBtn:hover {
+    background-color: red;
+    color: white;
+}
+
+#submitBtn {
+    width: var(--submit-width);
+    background: lightgreen;
+    border-radius: 0 5px 5px 0;
+}
+
+/* https://dev.to/dcodeyt/create-a-button-with-a-loading-spinner-in-html-css-1c0h */
+@keyframes button-loading-spinner {
+    to { transform: rotate(1turn); }
+}
+
+.button--loading::after {
+    content: "";
+    position: absolute;
+    margin: auto;
+
+    left: 52px;
+    top: 10px;
+    width: 20px;
+    height: 20px;
+
+    border: 4px solid transparent;
+    border-top-color: darkgreen;
+    border-radius: 50%;
+
+    animation: button-loading-spinner 1s ease infinite;
+    opacity: 0.75;
+}
+
+/* =========================================================
+   AUTOCOMPLETE
+   ========================================================= */
+.input-wrapper ul.suggestions {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border: 1px solid #ccc;
+    max-height: 150px;
+    overflow-y: auto;
+    position: absolute;
+    top: calc(100% + 2px);
+    left: 0;
+    width: 100%;
+    background: white;
+    display: none;
+    z-index: 10;
+    
+    /* prevent page scroll when reaching end */
+    overscroll-behavior-y: contain;
+    
+    -webkit-overflow-scrolling: touch;
+}
+
+ul.suggestions li {
+    padding: 8px;
+    cursor: pointer;
+    font-family: var(--font-list);
+}
+
+ul.suggestions li.highlight {
+    background: #e0e0e0;
+}
+
+/* =========================================================
+   AUTOCOMPLETE SCROLL INDICATOR
+   ========================================================= */
+
+/* bottom fade hint */
+.input-wrapper ul.suggestions::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 18px;
+    pointer-events: none;
+    background: linear-gradient(
+        to bottom,
+        rgba(255,255,255,0),
+        rgba(255,255,255,1)
+    );
+}
+
+/* =========================================================
+   TOGGLE SWITCH
+   ========================================================= */
+#openEnded {
+    display: none;
+}
+
+.toggle-container {
+    position: relative;
+    width: var(--toggle-width);
+    height: var(--toggle-height);
+    flex-shrink: 0;
+    
+    /* ensures the toggle-pill's left gap looks nice */
+    margin-left: 3px;
+}
+
+.slider {
+    position: absolute;
+    inset: 0;
+    background: #ccc;
+    border-radius: calc(var(--toggle-height) / 2);
+    cursor: pointer;
+    transition: .4s;
+}
+
+.slider:before {
+    content: "";
+    position: absolute;
+    height: calc(var(--toggle-height) - 8px);
+    width: calc(var(--toggle-height) - 8px);
+    left: 4px;
+    top: 4px;
+    background: white;
+    border-radius: 50%;
+    transition: .4s;
+}
+
+#openEnded:checked + .slider {
+    background: lightgreen;
+}
+
+#openEnded:checked + .slider:before {
+    transform: translateX(calc(var(--toggle-width) - var(--toggle-height)));
+}
+
+/* =========================================================
+   EXAMPLES
+   ========================================================= */
+.hint {
+    margin: 10px 25px;
+    font-family: sans-serif;
+    font-size: 0.8rem;
+}
+
+div#example-queries {
+    width: 80%;
+    margin: 2rem 25px;
+}
+
+div#example-queries p {
+    font-family: sans-serif;
+    font-size: 0.8rem;
+    margin-bottom: 0;
+}
+
+.speciesName {
+    text-decoration: underline wavy blue;
+}
+
+ul#dropdown {
+    margin-top: -10px;
+}
+
+ul#dropdown li {
+    font-family: var(--font-list);
+    font-size: 0.8rem;
+    line-height: 1.5rem;
+    cursor: pointer;
+}
+
+ul#dropdown li:hover {
+    background-color: antiquewhite;
+}
+
+/* =========================================================
+   GENERAL TAGS
+   ========================================================= */
+.warning {
+    color: orange !important;
+    font-size: .8rem;
+}
+
+.hidden {
+    visibility: hidden;
+    display: none;
+}
+
+/* .visible {
+    visibility: visible;
+} */
+
+pre,
+span.debuginfo {
+    font-size: 0.5rem;
+}
+
+pre {
+    display: inline-block;
+    padding: 0.5rem;
+}
+
+span.debuginfo {
+    font-family: sans-serif;
+    background-color: #f5f5f5;
+    border: 1px solid grey;
+    padding: 1px;
+    border-radius: 5px;
+    vertical-align: top;
+}
+
+p {
+    font-size: var(--font-main-size);
+    line-height: var(--font-main-line-height);
+}
+
+ul {
+/*     font-family: var(--font-list); */
+    font-size: 1rem;
+    color: var(--font-main-color);
+    line-height: var(--font-list-line-height);
+    list-style: outside;
+    padding: 20px;
+}
+
+figure {
+    background-color: #f5f5f5;
+    /* width: 100%; */
+    padding: 5px;
+    border: 1px solid lightgrey;
+}
+
+figcaption {
+    font-family: var(--font-list);
+    font-size: var(--font-list-size);
+    color: var(--font-main-color);
+    line-height: var(--font-list-line-height);
+    padding: 5px;
+}
+
+/* =========================================================
+   RESPONSE
+   ========================================================= */
+#response {
+    line-height: 1.5;
+}
+
+#response p {
+    margin-bottom: 1em;
+}
+
+/* thinking animation */
+/* .thinking {
+    font-style: italic;
+    opacity: .7;
+    margin-left: 25px;
+}
+
+.thinking span {
+    animation: blink 1.4s infinite both;
+}
+
+.thinking span:nth-child(2) {
+    animation-delay: .2s;
+}
+
+.thinking span:nth-child(3) {
+    animation-delay: .4s;
+}
+
+@keyframes blink {
+    0%, 80%, 100% { opacity: 0; }
+    40% { opacity: 1; }
+}
+ */
+
+ul.citations {
+    font-family: sans-serif;
+    font-size: 0.8rem;
+    padding: 0;
+}
+ul.citations li {
+    list-style: none;
+    margin-bottom: 1rem;
+}
+
+/* =========================================================
+   IMAGE GRID
+   ========================================================= */
+.zai-image-grid {
+    display: grid;
+    gap: var(--img-gutter);
+    margin-top: 10px;
+    grid-template-columns: 1fr;
+}
+
+.zai-image-grid figure {
+    margin: 0;
+    width: clamp(var(--img-min), 100%, var(--img-max));
+}
+
+.zai-image-grid figcaption {
+    font-size: .9rem;
+    opacity: .8;
+}
+
+/* =========================================================
+   BREAKPOINT ≥ 550px
+   ========================================================= */
+@media (min-width: 550px) {
+    .container {
+        max-width: 500px;
+    }
+
+    form {
+        flex-wrap: nowrap;
+    }
+
+    .form-row {
+        flex: 1;
+        border-radius: var(--form-radius) 0 0 var(--form-radius);
+    }
+    
+    .refresh-cache-container {
+        margin-right: 5px;
+        border-radius: 5px;
+        width: 34px;
+    }
+
+    .buttons {
+        width: auto;
+        margin-left: 0px;
+    }
+    
+    button {
+        height: calc(var(--form-height) + 6px);
+    }
+    
+    #resetBtn {
+        border-radius: 0;
+    }
+
+    #submitBtn {
+        border-radius: 0 var(--form-radius) var(--form-radius) 0;
+    }
+
+    /* .zai-image-grid.images-2 {
+        grid-template-columns: repeat(2, minmax(var(--img-min), 1fr));
+    } */
+
+    .zai-image-grid {
+        grid-template-columns: repeat(2, minmax(var(--img-min), 1fr));
+    }
+}
+
+/* =========================================================
+   BREAKPOINT ≥ 768px
+   ========================================================= */
+@media (min-width: 768px) {
+    .container {
+        max-width: 800px;
+    }
+
+    /* .zai-image-grid.images-3plus {
+        grid-template-columns: repeat(3, minmax(var(--img-min), 1fr));
+    } */
+
+    .zai-image-grid {
+        grid-template-columns: repeat(3, minmax(var(--img-min), 1fr));
+    }
+    
+    .zai-image-grid figure:only-child {
+        width: 100%;
+        max-width: 100%;
+    }
+}
