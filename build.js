@@ -13,11 +13,31 @@ async function minifyCSS(inputPath, outputPath) {
 
 // Minify JS
 async function minifyJS(inputPath, outputPath) {
+
     const js = readFileSync(inputPath, 'utf8');
-    const minified = await minify(js);
-    writeFileSync(outputPath, minified.code);
+
+    const minified = await minify(js, {
+        module: true,
+        compress: {
+            passes: 2
+        },
+        mangle: {
+            toplevel: false
+        },
+        format: {
+            comments: false
+        }
+    });
+
+    if (!minified.code) {
+        throw new Error(`Terser failed to minify ${inputPath}`);
+    }
+
+    //writeFileSync(outputPath, minified.code);
+    writeFileSync(outputPath, js);
+
     console.log(`JS minified: ${inputPath} -> ${outputPath}`);
-};
+}
 
 // Extract external files from HTML
 function extractExternalFiles(htmlPath) {
@@ -38,16 +58,14 @@ function extractExternalFiles(htmlPath) {
 async function minifyAllAssets(htmlPath, outputDir) {
     //const { cssFiles, jsFiles } = extractExternalFiles(htmlPath);
     const cssFiles = [
-        "css/styles.css"
+        "./css/askzai.css"
     ];
 
     const jsFiles = [
         './js/utils.js',
         './js/router.js',
-        './js/autosuggest.js',
         './js/askzai.js',
-        './js/exampleQueries.js',
-        './js/stopwords.js',
+        './js/exampleQueries.js'
     ];
 
     const baseDir = dirname(htmlPath);
@@ -71,7 +89,19 @@ async function minifyAllAssets(htmlPath, outputDir) {
         const outputPath = join(outputDir, jsFile.replace('.js', '.js'));
         
         const js = readFileSync(inputPath, 'utf8');
-        const minified = await minify(js);
+        //const minified = await minify(js);
+        const minified = await minify(js, {
+            module: true,
+            compress: {
+                passes: 2
+            },
+            mangle: {
+                toplevel: true
+            },
+            format: {
+                comments: false
+            }
+        });
         
         mkdirSync(dirname(outputPath), { recursive: true });
         writeFileSync(outputPath, minified.code);

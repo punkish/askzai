@@ -79,3 +79,4 @@ config.js
 .templates
 .vscode
 .zed
+.aider*

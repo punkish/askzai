@@ -58,7 +58,6 @@
     --font-list-line-height: calc(80% * var(--font-main-line-height));
 }
 
-
 /* =========================================================
    BASE
    ========================================================= */
@@ -75,7 +74,6 @@
 html {
     height: 100%;
 }
-
 body {
     margin: 0 auto;
     padding: var(--body-padding);
@@ -86,9 +84,8 @@ body {
     font-family: var(--font-main);
     color: var(--font-main-color);
     background: #f5f5f5;
-    border: 1px solid grey;
+    border: none;
 }
-
 img {
     max-width: 100%;
     height: auto;
@@ -102,20 +99,16 @@ footer {
     text-align: center;
     font-family: sans-serif;
 }
-
 header img {
     width: 40px;
     cursor: pointer;
 }
-
 header nav {
     margin-top: -1.25rem;
 }
-
 header nav ul {
     padding-left: 37px;
 }
-
 header nav li {
     display: inline;
     list-style: none;
@@ -164,7 +157,6 @@ form {
     min-width: 0;
     position: relative;
 }
-
 #describeTag {
     width: var(--describeTag-width);
     font-size: 12px;
@@ -178,14 +170,15 @@ form {
 
 /* query input */
 #queryInput {
-    height: var(--form-height);
+    height: calc(var(--form-height) - 5px);
     border: none;
     outline: none;
-    /* padding: 8px; */
+    padding: 8px;
     font-size: 14px;
     background: transparent;
     border-bottom: 1px solid white;
-  transition: border-color 0.3s ease;
+    transition: border-color 0.3s ease;
+    text-box-trim: trim-both;
 }
 #queryInput::placeholder {
     color: grey;
@@ -227,10 +220,12 @@ form {
     /* small tweak if needed for perfect centering */
     transform: translateY(1px);
 }
-
 #refreshCacheMsg {
-    margin: 10px 20px;
+    margin-left: 20px;
     font-family: sans-serif;
+    color: orange !important;
+    font-size: .7rem;
+    display: block;
 }
 
 /* ---------- buttons row ---------- */
@@ -258,12 +253,10 @@ button {
     width: var(--reset-width);
     border-radius: 5px 0 0 5px;
 }
-
 #resetBtn:hover {
     background-color: red;
     color: white;
 }
-
 #submitBtn {
     width: var(--submit-width);
     background: lightgreen;
@@ -274,21 +267,17 @@ button {
 @keyframes button-loading-spinner {
     to { transform: rotate(1turn); }
 }
-
 .button--loading::after {
     content: "";
     position: absolute;
     margin: auto;
-
     left: 52px;
     top: 10px;
     width: 20px;
     height: 20px;
-
     border: 4px solid transparent;
     border-top-color: darkgreen;
     border-radius: 50%;
-
     animation: button-loading-spinner 1s ease infinite;
     opacity: 0.75;
 }
@@ -316,13 +305,11 @@ button {
     
     -webkit-overflow-scrolling: touch;
 }
-
 ul.suggestions li {
     padding: 8px;
     cursor: pointer;
     font-family: var(--font-list);
 }
-
 ul.suggestions li.highlight {
     background: #e0e0e0;
 }
@@ -353,7 +340,6 @@ ul.suggestions li.highlight {
 #openEnded {
     display: none;
 }
-
 .toggle-container {
     position: relative;
     width: var(--toggle-width);
@@ -363,7 +349,6 @@ ul.suggestions li.highlight {
     /* ensures the toggle-pill's left gap looks nice */
     margin-left: 3px;
 }
-
 .slider {
     position: absolute;
     inset: 0;
@@ -372,7 +357,6 @@ ul.suggestions li.highlight {
     cursor: pointer;
     transition: .4s;
 }
-
 .slider:before {
     content: "";
     position: absolute;
@@ -384,11 +368,9 @@ ul.suggestions li.highlight {
     border-radius: 50%;
     transition: .4s;
 }
-
 #openEnded:checked + .slider {
     background: lightgreen;
 }
-
 #openEnded:checked + .slider:before {
     transform: translateX(calc(var(--toggle-width) - var(--toggle-height)));
 }
@@ -396,64 +378,70 @@ ul.suggestions li.highlight {
 /* =========================================================
    EXAMPLES
    ========================================================= */
-.hint {
-    margin: 10px 25px;
+#hint {
+    position: absolute;
+    margin: 5px 25px;
     font-family: sans-serif;
-    font-size: 0.8rem;
+    font-size: 0.7rem;
+    padding: 8px 1rem 8px;
+    z-index: 9999;
+    border: 1px solid #f5f5f5;
+    border-left: 4px solid #1abc9c;
+    border-radius: 4px;
+    background-color: #e8f6f3;
+    color: #16a085;
 }
-
-div#example-queries {
-    width: 80%;
-    margin: 2rem 25px;
+#example-queries {
+    margin-top: 0.75rem;
+    border-top: 1px solid grey;
+/*     background-color: #f5f5f5; */
+    border-radius: 0 0 10px 10px;
 }
-
-div#example-queries p {
-    font-family: sans-serif;
-    font-size: 0.8rem;
+#example-queries p {
+    font-size: 0.7rem;
     margin-bottom: 0;
+    color: #444;
 }
 
 .speciesName {
     text-decoration: underline wavy blue;
 }
-
-ul#dropdown {
+#dropdown {
     margin-top: -10px;
+    padding: 10px 10px;
 }
-
-ul#dropdown li {
+#dropdown li {
+    margin: 0.5rem 0;
     font-family: var(--font-list);
-    font-size: 0.8rem;
-    line-height: 1.5rem;
+    font-size: 0.7rem;
+    line-height: 1rem;
     cursor: pointer;
 }
-
-ul#dropdown li:hover {
+#dropdown li:hover {
     background-color: antiquewhite;
+}
+#response {
+    margin: 4rem 0;
+}
+#response.dimmed {
+    background-color: white;
+    opacity: 0.25;
 }
 
 /* =========================================================
    GENERAL TAGS
    ========================================================= */
-.warning {
-    color: orange !important;
-    font-size: .8rem;
-}
-
 .hidden {
     visibility: hidden;
     display: none;
 }
-
-/* .visible {
-    visibility: visible;
-} */
-
+.invisible {
+    visibility: hidden;
+}
 pre,
 span.debuginfo {
     font-size: 0.5rem;
 }
-
 pre {
     display: inline-block;
     padding: 0.5rem;
@@ -467,28 +455,22 @@ span.debuginfo {
     border-radius: 5px;
     vertical-align: top;
 }
-
 p {
     font-size: var(--font-main-size);
     line-height: var(--font-main-line-height);
 }
-
 ul {
-/*     font-family: var(--font-list); */
     font-size: 1rem;
     color: var(--font-main-color);
     line-height: var(--font-list-line-height);
     list-style: outside;
     padding: 20px;
 }
-
 figure {
     background-color: #f5f5f5;
-    /* width: 100%; */
     padding: 5px;
     border: 1px solid lightgrey;
 }
-
 figcaption {
     font-family: var(--font-list);
     font-size: var(--font-list-size);
@@ -503,36 +485,9 @@ figcaption {
 #response {
     line-height: 1.5;
 }
-
 #response p {
     margin-bottom: 1em;
 }
-
-/* thinking animation */
-/* .thinking {
-    font-style: italic;
-    opacity: .7;
-    margin-left: 25px;
-}
-
-.thinking span {
-    animation: blink 1.4s infinite both;
-}
-
-.thinking span:nth-child(2) {
-    animation-delay: .2s;
-}
-
-.thinking span:nth-child(3) {
-    animation-delay: .4s;
-}
-
-@keyframes blink {
-    0%, 80%, 100% { opacity: 0; }
-    40% { opacity: 1; }
-}
- */
-
 ul.citations {
     font-family: sans-serif;
     font-size: 0.8rem;
@@ -552,12 +507,10 @@ ul.citations li {
     margin-top: 10px;
     grid-template-columns: 1fr;
 }
-
 .zai-image-grid figure {
     margin: 0;
     width: clamp(var(--img-min), 100%, var(--img-max));
 }
-
 .zai-image-grid figcaption {
     font-size: .9rem;
     opacity: .8;
@@ -570,43 +523,34 @@ ul.citations li {
     .container {
         max-width: 500px;
     }
-
     form {
         flex-wrap: nowrap;
     }
-
     .form-row {
         flex: 1;
         border-radius: var(--form-radius) 0 0 var(--form-radius);
     }
-    
     .refresh-cache-container {
         margin-right: 5px;
         border-radius: 5px;
         width: 34px;
     }
-
     .buttons {
         width: auto;
         margin-left: 0px;
     }
-    
     button {
-        height: calc(var(--form-height) + 6px);
+        height: calc(var(--form-height) + 2px);
     }
-    
     #resetBtn {
         border-radius: 0;
     }
-
     #submitBtn {
         border-radius: 0 var(--form-radius) var(--form-radius) 0;
     }
-
-    /* .zai-image-grid.images-2 {
-        grid-template-columns: repeat(2, minmax(var(--img-min), 1fr));
-    } */
-
+    #hint {
+        width: 90%;
+    }
     .zai-image-grid {
         grid-template-columns: repeat(2, minmax(var(--img-min), 1fr));
     }
@@ -619,15 +563,9 @@ ul.citations li {
     .container {
         max-width: 800px;
     }
-
-    /* .zai-image-grid.images-3plus {
-        grid-template-columns: repeat(3, minmax(var(--img-min), 1fr));
-    } */
-
     .zai-image-grid {
         grid-template-columns: repeat(3, minmax(var(--img-min), 1fr));
     }
-    
     .zai-image-grid figure:only-child {
         width: 100%;
         max-width: 100%;

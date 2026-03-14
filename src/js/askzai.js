@@ -1,9 +1,9 @@
 // askzai.js
 import { Router, reroute } from './router.js';
-import { $, $$, toggleVisibility, getInputText } from './utils.js';
+import { $, $$, toggleVisibility } from './utils.js';
 import { populateExampleDropdown } from './exampleQueries.js';
 
-export async function init() {
+function init() {
     const md = new showdown.Converter({
         tables: true,
         simpleLineBreaks: true
@@ -16,26 +16,12 @@ export async function init() {
     let aborter = null;
     let cache = new Map();
 
-    tweakUrl(window.location.href);
-    initializeUi();
-
-    // Initialize the autosuggest when DOM is loaded
-    document.addEventListener('DOMContentLoaded', async () => {
-        initializeRoutes();
-        await populateExampleDropdown();
-        activateExampleQueries();
-        ui.input.focus();
-    });
-
-    loadQueryFromURL();
-
     function initializeUi() {
         ui.form = $('form');
         ui.input = $('#queryInput');
         ui.openEnded = $('#openEnded');
         ui.describeTag = $('#describeTag');
         ui.suggestions = $('#suggestions');
-        //ui.suggestionItems = $$('li', ui.suggestions);
         ui.response = $('#response');
         ui.reset = $('#resetBtn');
         ui.refreshCache = $('#refreshCache');
@@ -44,7 +30,10 @@ export async function init() {
         ui.input.setAttribute('aria-autocomplete','list');
         ui.submitBtn = $('#submitBtn');
         ui.suggestions.setAttribute('role','listbox');
-        ui.showExamples = $('.hint a');
+        ui.hint = $('#hint');
+        ui.showExamples = $('#hint a');
+        ui.exampleQueries = $('#example-queries');
+        ui.response = $('#response');
 
         // EVENTS
         ui.input.addEventListener('input', debounce(handleAutocomplete, 250));
@@ -52,12 +41,14 @@ export async function init() {
         ui.form.addEventListener('submit', handleSubmit);
         ui.reset.addEventListener('click', resetUI);
         ui.openEnded.addEventListener('click', toggleOpenEnded);
-        ui.refreshCache.addEventListener('change', () => {
-            ui.refreshCacheMsg.classList.toggle('hidden', !ui.refreshCache.checked);
-        });
+        // ui.refreshCache.addEventListener('change', () => {
+        //     ui.refreshCacheMsg.classList.toggle('invisible', !ui.refreshCache.checked);
+        // });
         ui.showExamples.addEventListener('click', (e) => {
             e.preventDefault();
-            toggleVisibility($("#example-queries"));
+            ui.response.classList.toggle('dimmed');
+            ui.hint.classList.toggle('open');
+            toggleVisibility(ui.exampleQueries);
         });
 
         document.addEventListener('click', e => {
@@ -72,7 +63,7 @@ export async function init() {
     function activateExampleQueries() {
         ui.examplesList = $$('#dropdown li');
 
-         // if an example query is selected from the list
+            // if an example query is selected from the list
         ui.examplesList.forEach((item) => {
             item.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -88,6 +79,8 @@ export async function init() {
                     activateOpenEnded(query);
                 }
                 
+                ui.response.classList.toggle('dimmed');
+                ui.hint.classList.toggle('open');
                 toggleVisibility($("#example-queries"));
                 executeQuery(query);
             });
@@ -467,13 +460,13 @@ export async function init() {
     }
 
     async function executeQuery(query){
-        console.log(`query: ${query}`);
+        //console.log(`query: ${query}`);
         hideSuggestions(); 
         ui.submitBtn.classList.add("button--loading");
 
         if (!ui.openEnded.checked) {
 
-            if (query.toLowerCase().indexOf('describe') === -1) {
+            if (!query.toLowerCase().includes('describe')) {
                 query = `Describe ${query}`;
             }
             
@@ -490,11 +483,12 @@ export async function init() {
             }
 
             const url = `${Zai.uris.zenodeo}/v3/treatments?${params.toString()}`;
-            console.log(`url: ${url}`);
-            // const res = await fetch(url);
-            // const data = await res.json();
+            const res = await fetch(url);
+            const data = await res.json();
             ui.submitBtn.classList.remove("button--loading");
-            //renderResponse(data);
+            ui.refreshCache.checked = false;
+            // ui.refreshCacheMsg.classList.toggle('hidden');
+            renderResponse(data);
         } 
         catch(e){ 
             console.error(e); 
@@ -546,4 +540,18 @@ export async function init() {
         }
 
     }
+    
+    tweakUrl(window.location.href);
+    
+    // Initialize the autosuggest when DOM is loaded
+    document.addEventListener('DOMContentLoaded', async () => {
+        initializeUi();
+        initializeRoutes();
+        await populateExampleDropdown();
+        activateExampleQueries();
+        loadQueryFromURL();
+        ui.input.focus();
+    });
 }
+
+export { init }
