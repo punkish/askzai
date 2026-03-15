@@ -350,7 +350,7 @@ function init() {
 
     function renderImages(data){
         const images=[];
-        data.response?.treatmentsByBinomens?.forEach(b=>b.treatments?.forEach(t=>images.push(...(t.images||[]))));
+        data.response?.treatments?.forEach(t=>images.push(...(t.images||[])));
         if(!images.length) return;
 
         const title = document.createElement('p');
@@ -372,8 +372,7 @@ function init() {
     }
 
     function renderTreatments(data){
-        const treatments=[];
-        data.response?.treatmentsByBinomens?.forEach(b=>b.treatments?.forEach(t=>treatments.push(t)));
+        const treatments=data.response?.treatments;
         if(!treatments.length) return;
 
         const title = document.createElement('p');
