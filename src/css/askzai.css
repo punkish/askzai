@@ -250,6 +250,12 @@ button {
     border: 1px solid black;
     font-size: 14px;
     cursor: pointer;
+
+    /* Remove the extra space above and below text that comes    */
+    /* from line-height. The text sits exactly where we want it, */
+    /* without invisible padding.                                */
+    /* https://x.com/vponamariov/status/2032394363024953674      */
+    text-box-trim: trim-both;
 }
 
 /* pill buttons */
