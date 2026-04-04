@@ -507,6 +507,10 @@ ul.citations li {
     list-style: none;
     margin-bottom: 1rem;
 }
+.zai-status {
+    font-size: 1rem;
+    font-style: italic;
+}
 
 /* =========================================================
    IMAGE GRID
