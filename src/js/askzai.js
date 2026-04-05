@@ -824,7 +824,7 @@ function init() {
         images.forEach(img => {
             const fig   = document.createElement('figure');
             const image = document.createElement('img');
-            image.src     = img.httpUri;
+            image.src = getUri(img.httpUri);
             image.loading = 'lazy';
             const cap = document.createElement('figcaption');
             cap.textContent = img.captionText;
@@ -833,6 +833,45 @@ function init() {
         });
 
         // applyImageLayout(container, images.length);
+    }
+
+    function extractId(url) {
+
+        // Use a regular expression to find the number between 'records/' 
+        // and '/files'
+        const regex = /record\/([0-9]+)\/files/;
+
+        // Use the URL.match() method to find the match
+        const match = url.match(regex);
+
+        // If a match is found, return the number; otherwise, return null
+        return match ? match[1] : null;
+    }
+
+    // https://zenodo.org/records/266210/files/figure.png
+    function getUri(uri) {
+        let u;
+
+        // if the figure is on zenodo, show their thumbnails unless 
+        // it is an svg, in which case, apologize with "no preview"
+        if (uri.indexOf('zenodo') > -1) {
+            if (uri.indexOf('.svg') > -1) {
+                u = '/img/kein-preview.png';
+            }
+            else {
+                const id = extractId(uri);
+
+                // https://zenodo.org/api/iiif/record:6758444:figure.png/full/250,/0/default.png
+                u = `https://zenodo.org/record/${id}/thumb${250}`;
+            }
+        }
+
+        // but some are on Pensoft, so use the uri directly
+        else {
+            u = `${uri}/singlefigAOF/`;
+        }
+
+        return u;
     }
 
 
