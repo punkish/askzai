@@ -357,7 +357,7 @@ ul.suggestions li.highlight {
     flex-shrink: 0;
     
     /* ensures the toggle-pill's left gap looks nice */
-    margin-left: 3px;
+    margin-left: 1px;
 }
 .slider {
     position: absolute;

@@ -142,86 +142,6 @@ class StatusQueue {
     }
 }
 
-class StatusQueueOld {
-    constructor(el, interval = 600) {
-        this._el       = el;
-        this._interval = interval;
-        this._queue    = [];
-        this._timer    = null;
-        this._onEmpty  = null;
-        this._steps    = new Map(); // track which steps have been seen
-    }
-
-    // Expose current text so callers can read it if needed,
-    // though with the append model below they rarely need to.
-    get text() {
-        return this._el.textContent;
-    }
-
-    push({ step, message }) {
-
-        // Build the appended label before queuing it.
-        // First occurrence of a step: append "message… "
-        // Repeat of the same step (e.g. a count update): append "→ message"
-        const separator = this._steps.has(step) ? ' → ' : '… ';
-        this._steps.set(step, (this._steps.get(step) ?? 0) + 1);
-
-        //message = message ? message + separator : separator;
-        this._queue.push({ step, message, separator });
-        this._startDrain();
-    }
-
-    onEmpty(callback) {
-        this._onEmpty = callback;
-
-        if (this._queue.length === 0 && !this._timer) {
-            setTimeout(callback, 0);
-            this._onEmpty = null;
-        }
-
-    }
-
-    destroy() {
-        this._stopDrain();
-        this._queue   = [];
-        this._steps   = new Map();
-        this._onEmpty = null;
-    }
-
-    _startDrain() {
-        if (this._timer) return;
-        this._timer = setInterval(() => this._tick(), this._interval);
-    }
-
-    _stopDrain() {
-
-        if (this._timer) {
-            clearInterval(this._timer);
-            this._timer = null;
-        }
-
-    }
-
-    _tick() {
-
-        if (this._queue.length > 0) {
-            const { message, separator } = this._queue.shift();
-
-            // Append to whatever is already displayed rather than replacing it.
-            this._el.textContent += message + separator;
-        }
-        else {
-            this._stopDrain();
-            if (this._onEmpty) {
-                const cb = this._onEmpty;
-                this._onEmpty = null;
-                cb();
-            }
-        }
-
-    }
-}
-
 function init() {
     const md = new showdown.Converter({
         tables: true,
@@ -282,7 +202,7 @@ function init() {
     function activateExampleQueries() {
         ui.examplesList = $$('#dropdown li');
 
-            // if an example query is selected from the list
+        // if an example query is selected from the list
         ui.examplesList.forEach((item) => {
             item.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -405,7 +325,7 @@ function init() {
         selected = false;
         highlighted = -1;
 
-        if(q.length<3) { 
+        if(q.length < 3) { 
             hideSuggestions(); 
             return; 
         }
@@ -785,9 +705,9 @@ function init() {
         }
 
         typewriterHTML(msg, intro, ()=>{
-            renderImages(data);
-            renderTreatments(data);
-            renderDebug(data);
+            renderImages(data.response);
+            renderTreatments(data.response);
+            renderDebug(data.response);
         });
 
         scrollToResults();
