@@ -530,6 +530,54 @@ ul.citations li {
     opacity: .8;
 }
 
+/* ── Zai loading spinner ─────────────────────────────────────────── */
+/* .zai-spinner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 1.2rem 0;
+    color: var(--color-text-secondary, #888);
+    font-size: 0.875rem;
+}
+
+.zai-spinner__ring {
+    width: 20px;
+    height: 20px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: zai-spin 0.7s linear infinite;
+    flex-shrink: 0;
+    opacity: 0.5;
+} */
+
+/* ── Inline status spinner (shown during LLM generation gap) ─────── */
+/* .zai-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+} */
+
+/* .zai-status__ring {
+    width: 14px;
+    height: 14px;
+    border: 1.5px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: zai-spin 0.7s linear infinite;
+    flex-shrink: 0;
+    opacity: 0.5;
+    display: none;
+}
+
+.zai-status__ring.active {
+    display: inline-block;
+} */
+
+@keyframes zai-spin {
+    to { transform: rotate(360deg); }
+}
+
 /* =========================================================
    BREAKPOINT ≥ 550px
    ========================================================= */

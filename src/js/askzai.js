@@ -39,6 +39,22 @@ class StatusQueue {
         // subsequent tokens go straight to the DOM.
         this._tokenBuffer  = [];
         this._statusDone   = false;    // true once the queue has fully drained
+
+        // ── Spinner injected next to the status text ──────────────────
+        // Split the status bar into a text node and a spinner sibling.
+        // Writing to _textSpan.textContent never touches _spinner.
+        this._textSpan   = document.createElement('span');
+        this._cursorSpan = document.createElement('span');
+        this._cursorSpan.style.fontFamily = 'monospace';
+        this._cursorSpan.style.fontWeight = 'bold';
+        this._cursorSpan.style.marginLeft = '5px';
+        this._el.appendChild(this._textSpan);
+        this._el.appendChild(this._cursorSpan);
+
+        //this._cursorFrames = ['─', '╱', '│', '╲'];
+        this._cursorFrames = '|/─\\';
+        this._cursorIndex  = 0;
+        this._cursorTimer  = null;
     }
 
     get text() {
@@ -64,9 +80,16 @@ class StatusQueue {
     // Called for every incoming token delta.
     // If status is still draining, buffer it; otherwise write immediately.
     pushToken(delta) {
+
+        // First token arriving means streaming has started — hide spinner
+        // regardless of which path we're on (handles the English-only case).
+        if (this._cursorTimer) {
+            this._stopCursor();
+        }
+
         if (!this._statusDone) {
             this._tokenBuffer.push(delta);
-        }
+        } 
         else {
             this._writeToken(delta);
         }
@@ -83,10 +106,30 @@ class StatusQueue {
 
     destroy() {
         this._stopDrain();
+        this._stopCursor();
         this._queue       = [];
         this._tokenBuffer = [];
         this._steps       = new Map();
         this._onEmpty     = null;
+    }
+
+    _startCursor() {
+        if (this._cursorTimer) return;
+
+        this._cursorTimer = setInterval(() => {
+            this._cursorSpan.textContent = this._cursorFrames[this._cursorIndex];
+            this._cursorIndex = (this._cursorIndex + 1) % this._cursorFrames.length;
+        }, 120);
+    }
+
+    _stopCursor() {
+
+        if (this._cursorTimer) {
+            clearInterval(this._cursorTimer);
+            this._cursorTimer = null;
+        }
+
+        this._cursorSpan.textContent = '';
     }
 
     _writeToken(delta) {
@@ -120,10 +163,35 @@ class StatusQueue {
     _tick() {
 
         if (this._queue.length > 0) {
-            const { message, separator } = this._queue.shift();
+            const { step, message, separator } = this._queue.shift();
 
-            // Append to whatever is already displayed rather than replacing it.
-            this._el.textContent += separator + message;
+            // Write to the text span — never touches the spinner sibling.
+            this._textSpan.textContent += separator + message;
+
+            // Show spinner during the LLM generation gap;
+            // hide it once streaming/translation begins.
+            if (step === 'answer') {
+
+                if (message.startsWith('Generating answer')) {
+
+                    // Translation path: no streaming yet, tokens accumulate
+                    // server-side. Show spinner until 'Translating answer'.
+                    this._startCursor();
+                } 
+                //else if (message.startsWith('Generating answer')) {
+
+                    // English-only path: streaming starts soon after.
+                    // Show spinner; pushToken() will hide it on first token.
+                    //this._startCursor();
+                //} 
+                else if (message.startsWith('Translating answer')) {
+
+                    // Translation path: server is now streaming the translated
+                    // tokens. Hide spinner — streaming takes over visually.
+                    this._stopCursor();
+                }
+
+            }
         }
         else {
             this._stopDrain();
@@ -701,7 +769,7 @@ function init() {
         let msg = answer;
 
         if (ui.openEnded.checked) {
-            msg = `<p>A vector search for <em>${query}</em> determined the following:</p>${msg}`;
+            msg = `<p>A hybrid lexical-vector search for <em>${query}</em> determined the following:</p>${msg}`;
         }
 
         typewriterHTML(msg, intro, ()=>{
@@ -792,6 +860,19 @@ function init() {
         }
 
         return u;
+    }
+
+    // ── Add this helper alongside the other small UI helpers ─────────────────────
+    function showSpinner() {
+        ui.response.innerHTML = '';
+        const wrap = document.createElement('div');
+        wrap.className = 'zai-spinner';
+        const ring = document.createElement('span');
+        ring.className = 'zai-spinner__ring';
+        const label = document.createElement('span');
+        label.textContent = 'Thinking…';
+        wrap.append(ring, label);
+        ui.response.appendChild(wrap);
     }
 
 
@@ -905,7 +986,6 @@ function init() {
     }
 
     async function executeQuery(query){
-        //console.log(`query: ${query}`);
         hideSuggestions(); 
         ui.submitBtn.classList.add("button--loading");
 
